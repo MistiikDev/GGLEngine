@@ -1,0 +1,23 @@
+# Ignore build outputs
+/build/
+
+# Ignore libraries
+lib/
+glfw.dll
+
+# Ignore temporary files / IDE stuff
+*.exe
+*.obj
+*.o
+*.log
+*.swp
+*.dll
+
+/.vscode/
+/.vs/
+
+make
+core/glad.c
+
+# Ignore large vendor headers
+include/Vendors/
