@@ -1,0 +1,24 @@
+//
+// Created by User on 28/11/2025.
+//
+
+#include "VBO.h"
+
+VBO::VBO(float* verticies) {
+    glGenBuffers(1, &this->ID);
+    glBindBuffer(GL_ARRAY_BUFFER, this->ID);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+}
+
+void VBO::Bind() {
+    glBindBuffer(GL_ARRAY_BUFFER, this->ID);
+}
+
+void VBO::Unbind() {
+    glBindBuffer(GL_ARRAY_BUFFER, 1);
+}
+
+void VBO::Destroy() {
+    glDeleteBuffers(1, &this->ID);
+}

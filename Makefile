@@ -2,15 +2,17 @@
 
 # Compiler
 CXX = g++
-CXXFLAGS = -Wall -std=c++17 -Icore -Iinclude -Iinclude/Vendors
+CXXFLAGS = -Wall -std=c++17 -Icore -Iinclude -Iinclude/Vendors -Isrc/Engine/Core -Isrc/Engine/Graphics
 
 # Libraries
 LDFLAGS = -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32
 
 # Source files
-SRC = src/main.cpp $(wildcard src/**/*.cpp src/**/*.c) $(wildcard core/*.cpp core/*.c) $(wildcard core/**/*.cpp core/**/*.c)
-# Output
-EXEC = build/game.exe
+SRC := $(shell find src Core -type f \( -name "*.cpp" -o -name "*.c" \))
+OBJ := $(SRC:.cpp=.o)
+OBJ := $(OBJ:.c=.o)
+
+EXEC = game.exe
 
 # Rules
 all: $(EXEC)
