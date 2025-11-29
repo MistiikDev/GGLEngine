@@ -1,6 +1,7 @@
 #include <glad/glad.h>     // Must be first for SOME reason
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <stb/stb_image.h>
 
 #include <iostream>
 #include <fstream>
@@ -22,22 +23,19 @@ const char *vertexShaderSource;
 const char *fragShaderSource;
 
 // Vertices coordinates
-GLfloat vertices[] =
+GLfloat vertices[] = // POSITION // COLOR
 {
-	-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-	0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
-	0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Upper corner
-	-0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner left
-	0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner right
-	0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner down
+	-0.5f, 0.5f, 0.0f,          0.1f, 0.1f, 0.5f,  // Lower left corner
+	-0.5f, -0.5f, 0.0f,         0.8f, 0.2f, 0.3f,  // Lower right corner
+	0.5f, 0.5f , 0.0f,          0.3f, 0.3f, 0.4f,  // Upper corner
+	0.5f, -0.5f, 0.0f,          0.5f, 0.8f, 0.2f,  // Inner left
 };
 
 // Indices for vertices order
 unsigned int indices[] =
 {
-	0, 3, 5, // Lower left triangle
-	3, 2, 4, // Lower right triangle
-	5, 4, 1 // Upper triangle
+    0, 2, 3,
+    3, 1, 0
 };
 
 void procces_input(GLFWwindow *window) {
@@ -70,19 +68,19 @@ int main() {
     gladLoadGL();
     glViewport(0, 0, 1280, 720);
 
+
     // Graphics Render
     ShaderInstance shader {DEFAULT_VERT_SHADER, DEFAULT_FRAG_SHADER};
 
     VAO vertexArray {};
-    VBO vertexBuffer {vertices};
-    EBO elementBuffer {indices};
-
     vertexArray.Bind();
-    vertexArray.LinkVBO(vertexBuffer, 0); // LAYOUT:0
 
-    vertexBuffer.Unbind();
-    elementBuffer.Unbind();
+    VBO vertexBuffer {vertices, sizeof(vertices)};
+    EBO elementBuffer {indices, sizeof(indices)};
 
+    vertexArray.LinkAttribute(vertexBuffer, 0, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*)0); // LAYOUT:0 (position)
+    vertexArray.LinkAttribute(vertexBuffer, 1, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); // LAYOUT:1 (color)
+    
     while (!glfwWindowShouldClose(window)) {
         procces_input(window);
 

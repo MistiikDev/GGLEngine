@@ -11,7 +11,7 @@
 class EBO {
     public:
         GLuint ID;
-        EBO(unsigned int* indicies);
+        EBO(unsigned int* indicies, unsigned int size);
 
         void Bind();
         void Unbind();

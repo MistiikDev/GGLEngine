@@ -4,11 +4,10 @@
 
 #include "EBO.h"
 
-EBO::EBO(unsigned int* indicies) {
+EBO::EBO(unsigned int* indicies, unsigned int size) {
     glGenBuffers(1, &this->ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ID);
-
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indicies, GL_STATIC_DRAW);
 }
 
 void EBO::Bind() {

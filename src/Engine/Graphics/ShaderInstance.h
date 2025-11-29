@@ -21,6 +21,8 @@ class ShaderInstance
         GLuint ID;
         ShaderInstance(const char* vertexShader, const char* fragmentShader);
 
+        void CompilationErrors(unsigned int ShaderID, const char* shaderCompilationType);
+
         void Activate();
         void Destroy();
 };

@@ -4,11 +4,11 @@
 
 #include "VBO.h"
 
-VBO::VBO(float* verticies) {
+VBO::VBO(float* verticies, unsigned int size) {
     glGenBuffers(1, &this->ID);
     glBindBuffer(GL_ARRAY_BUFFER, this->ID);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, verticies, GL_STATIC_DRAW);
 }
 
 void VBO::Bind() {
@@ -16,7 +16,7 @@ void VBO::Bind() {
 }
 
 void VBO::Unbind() {
-    glBindBuffer(GL_ARRAY_BUFFER, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void VBO::Destroy() {

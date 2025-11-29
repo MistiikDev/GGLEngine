@@ -11,7 +11,7 @@
 class VBO {
     public:
         GLuint ID;
-        VBO(float* verticies);
+        VBO(float* verticies, unsigned int size);
 
         void Bind();
         void Unbind();
