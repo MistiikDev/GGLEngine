@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "ShaderInstance.h"
+#include "Texture.h"
 
 #include "VAO.h"
 #include "VBO.h"
@@ -19,16 +20,18 @@
 const char* DEFAULT_FRAG_SHADER = "src/Engine/Graphics/Shaders/FShaders/default.frag";
 const char* DEFAULT_VERT_SHADER = "src/Engine/Graphics/Shaders/VShaders/default.vert";
 
+const char* DEFAULT_TEXTURE = "src/Engine/Graphics/Textures/default.jpg";
+
 const char *vertexShaderSource;
 const char *fragShaderSource;
 
 // Vertices coordinates
-GLfloat vertices[] = // POSITION // COLOR
+GLfloat vertices[] = // POSITION // COLOR // TEXTURE COORDINATES
 {
-	-0.5f, 0.5f, 0.0f,          0.1f, 0.1f, 0.5f,  // Lower left corner
-	-0.5f, -0.5f, 0.0f,         0.8f, 0.2f, 0.3f,  // Lower right corner
-	0.5f, 0.5f , 0.0f,          0.3f, 0.3f, 0.4f,  // Upper corner
-	0.5f, -0.5f, 0.0f,          0.5f, 0.8f, 0.2f,  // Inner left
+	-0.5f, 0.5f, 0.0f,     0.1f, 0.1f, 0.5f,     1.0f, 0.0f,          // Upper left corner
+	-0.5f, -0.5f, 0.0f,    0.8f, 0.2f, 0.3f,     0.0f, 0.0f,         // Lower right corner
+	0.5f, 0.5f , 0.0f,     0.3f, 0.3f, 0.4f,     1.0f, 1.0f,        // Upper corner
+	0.5f, -0.5f, 0.0f,     0.5f, 0.8f, 0.2f,     0.0f, 1.0f,       // Inner left
 };
 
 // Indices for vertices order
@@ -43,7 +46,6 @@ void procces_input(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
-
 
 int main() {
     if (!glfwInit()) {
@@ -68,7 +70,6 @@ int main() {
     gladLoadGL();
     glViewport(0, 0, 1280, 720);
 
-
     // Graphics Render
     ShaderInstance shader {DEFAULT_VERT_SHADER, DEFAULT_FRAG_SHADER};
 
@@ -78,17 +79,22 @@ int main() {
     VBO vertexBuffer {vertices, sizeof(vertices)};
     EBO elementBuffer {indices, sizeof(indices)};
 
-    vertexArray.LinkAttribute(vertexBuffer, 0, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*)0); // LAYOUT:0 (position)
-    vertexArray.LinkAttribute(vertexBuffer, 1, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); // LAYOUT:1 (color)
-    
+    vertexArray.LinkAttribute(vertexBuffer, 0, 3, GL_FLOAT, 8 * sizeof(GL_FLOAT), (void*)0); // LAYOUT:0 (position 3D)
+    vertexArray.LinkAttribute(vertexBuffer, 1, 3, GL_FLOAT, 8 * sizeof(GL_FLOAT), (void*)(3 * sizeof(GL_FLOAT))); // LAYOUT:1 (color 3D)
+    vertexArray.LinkAttribute(vertexBuffer, 2, 2, GL_FLOAT, 8 * sizeof(GL_FLOAT), (void*)(6 * sizeof(GL_FLOAT))); // LAYOUT:2 (texture position 2D)
+
+    Texture tex0 { DEFAULT_TEXTURE, GL_TEXTURE0, GL_TEXTURE_2D, GL_RGB, GL_NEAREST, GL_REPEAT};
+    tex0.Sample(shader, "texture0", 0);
+
     while (!glfwWindowShouldClose(window)) {
         procces_input(window);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.2f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         shader.Activate();
         vertexArray.Bind();
+        tex0.Bind();
 
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
@@ -101,6 +107,8 @@ int main() {
     vertexArray.Destroy();
     vertexBuffer.Destroy();
     elementBuffer.Destroy();
+
+    tex0.Destroy();
 
     glfwDestroyWindow(window);
     glfwTerminate();
