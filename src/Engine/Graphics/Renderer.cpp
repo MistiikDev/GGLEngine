@@ -45,8 +45,8 @@ Renderer::Renderer(Window* window, unsigned int ScreenWidth, unsigned int Screen
       m_currentCamera(ScreenWidth, ScreenHeight, camera_origin),
       m_window(window)
 {
-    indexBuffer.Bind();
     vertexArray.Bind();
+    indexBuffer.Bind();
 
     vertexArray.LinkAttribute(vertexBuffer, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
     vertexArray.LinkAttribute(vertexBuffer, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
