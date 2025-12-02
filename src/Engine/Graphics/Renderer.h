@@ -38,6 +38,11 @@ class Renderer {
         void Destroy();
     private:
         Window* m_window;
+
+        VAO m_lightVAO;
+        VBO m_lightVBO;
+        EBO m_lightIndexBuffer;
+        ShaderInstance m_lightShader;
 };
 
 #endif

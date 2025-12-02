@@ -15,6 +15,8 @@ class Camera {
         glm::vec3 LookVector = glm::vec3(0.0f, 0.0f, -1.0f); // Looking at -Z from convention, looking through the screen
         glm::vec3 UpVector = glm::vec3(0.0f, 1.0f, 0.0f);
 
+        glm::mat4 CameraMatrix = glm::mat4(1.0f);
+
         int WIDTH, HEIGHT;
 
         float CameraSpeed, CameraSensitivity;
@@ -22,7 +24,8 @@ class Camera {
 
         Camera(int Width, int Height, glm::vec3 position);
 
-        void MatrixRender(float nearClip, float farClip, float FieldOfView, ShaderInstance& shader, const char* uniform);
+        void MatrixRender(ShaderInstance& shader, const char* uniform);
+        void ComputeMatrix(float nearClip, float farClip, float FieldOfView);
         void Input(GLFWwindow* window);
 };
 

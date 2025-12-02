@@ -7,25 +7,40 @@ void procces_input(GLFWwindow *window) {
     }
 }
 
+static void glfw_error_callback(int error, const char* description) {
+    std::cerr << "[GLFW ERROR] code: " << error << " - " << description << std::endl;
+}
+
 Window::Window(const char* WindowTitle, unsigned int ScreenWidth, unsigned int ScreenHeight) {
     if (!glfwInit()) {
-        throw "[GLFW] : FAILED INIT!";
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    m_glfwWindow = glfwCreateWindow(ScreenWidth, ScreenHeight, WindowTitle, NULL, NULL);
-
-    if (!m_glfwWindow) {
-        glfwTerminate();
-        std::cout << "GLFW_ERR : FAILED WINDOW INIT!";
-
+        std::cerr << "[DEBUG] glfwInit FAILED\n";
         return;
     }
 
+    glfwSetErrorCallback(glfw_error_callback);
+    std::cout << "[DEBUG] glfwInit OK\n";
+
+    m_glfwWindow = glfwCreateWindow(ScreenWidth, ScreenHeight, WindowTitle, NULL, NULL);
+    if (!m_glfwWindow) {
+        std::cerr << "[DEBUG] glfwCreateWindow FAILED\n";
+        glfwTerminate();
+        return;
+    }
+
+    std::cout << "[DEBUG] glfwCreateWindow OK: " << m_glfwWindow << '\n';
+
     glfwMakeContextCurrent(m_glfwWindow);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "[DEBUG] glad failed\n";
+        glfwDestroyWindow(m_glfwWindow);
+        glfwTerminate();
+        return;
+    }
+    
+    std::cout << "[DEBUG] glad OK\n";
+    std::cout << "OpenGL: " << glGetString(GL_VERSION) << '\n';
+
     gladLoadGL();
     glViewport(0, 0, ScreenWidth, ScreenHeight);
     glEnable(GL_DEPTH_TEST);

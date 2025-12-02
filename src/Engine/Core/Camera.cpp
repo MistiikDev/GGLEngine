@@ -5,22 +5,24 @@ Camera::Camera(int Width, int Height, glm::vec3 position) {
     WIDTH = Width;
     HEIGHT = Height;
 
-    CameraSpeed = 0.1f;
-    CameraSensitivity = 100.0f;
+    CameraSpeed = 0.01f;
+    CameraSensitivity = 35.0f;
 }
 
-void Camera::MatrixRender(float nearClip, float farClip, float FieldOfView, ShaderInstance& shader, const char* uniform) {
+void Camera::ComputeMatrix(float nearClip, float farClip, float FieldOfView) {
     glm::mat4 view_mat = glm::mat4(1.0f);
     glm::mat4 projection_mat = glm::mat4(1.0f);
 
     view_mat = glm::lookAt(Position, Position + LookVector, UpVector);
-    projection_mat = glm::perspective(glm::radians(FieldOfView), (float)(WIDTH / HEIGHT), nearClip, farClip);
+    projection_mat = glm::perspective(glm::radians(FieldOfView), static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), nearClip, farClip);
 
-    GLuint camera_uniform = glGetUniformLocation(shader.ID, uniform);
-
-    glUniformMatrix4fv(camera_uniform, 1, GL_FALSE, glm::value_ptr(projection_mat * view_mat));
+    CameraMatrix = projection_mat * view_mat;
 }
 
+void Camera::MatrixRender(ShaderInstance& shader, const char* uniform) {    
+    GLuint camera_uniform = glGetUniformLocation(shader.ID, uniform);
+    glUniformMatrix4fv(camera_uniform, 1, GL_FALSE, glm::value_ptr(CameraMatrix));
+}
 
 void Camera::Input(GLFWwindow* window) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
