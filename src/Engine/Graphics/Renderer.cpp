@@ -109,16 +109,6 @@ Renderer::Renderer(Window* window, unsigned int ScreenWidth, unsigned int Screen
     vertexBuffer.Unbind();
     indexBuffer.Unbind();
 
-    texture0.Sample(m_shaderInstance, "texture0", 0);
-
-
-    glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::mat4 objectTransform = glm::mat4(1.0f);
-
-    objectTransform = glm::translate(objectTransform, objectPos);
-    glUniformMatrix4fv(glGetUniformLocation(m_shaderInstance.ID, "vertexTransform"), 1, GL_FALSE, glm::value_ptr(objectTransform));
-
-
     // 
     // Spawn a light cube for debugging light rendering
     m_lightVAO.Bind();    
@@ -130,21 +120,34 @@ Renderer::Renderer(Window* window, unsigned int ScreenWidth, unsigned int Screen
     m_lightVBO.Unbind();
     m_lightIndexBuffer.Unbind();
 
-    m_lightShader.Activate();
     glm::mat4 lightTransform = glm::mat4(1.0f);
     glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
     lightTransform = glm::translate(lightTransform, lightPos);
 
     // Send light data to light shaders
-    glUniformMatrix4fv(glGetUniformLocation(m_lightShader.ID, "light_transform"), 1, GL_FALSE, glm::value_ptr(lightTransform));
-    glUniform4f(glGetUniformLocation(m_lightShader.ID, "light_color"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+    m_lightShader.Activate();
+    m_lightShader.SetMatrix4f("light_transform", lightTransform);
+    m_lightShader.SetVector3f("light_color", lightColor);
+
+    //
+    //texture0.Sample(m_shaderInstance, "texture0", 0);
+
+    glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::mat4 objectTransform = glm::mat4(1.0f);
+    objectTransform = glm::translate(objectTransform, objectPos);
+
+    m_shaderInstance.Activate();
+    m_shaderInstance.SetMatrix4f("vertexTransform", objectTransform);
+
+    m_shaderInstance.SetVector3f("light_color", lightColor);
+    m_shaderInstance.SetVector3f("light_position", lightPos);
 }
 
 
 void Renderer::Render() {
-    glClearColor(0.1f, 0.2f, 0.5f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_shaderInstance.Activate();
@@ -154,7 +157,7 @@ void Renderer::Render() {
     m_currentCamera.MatrixRender(m_shaderInstance, "camera_matrix");
 
     vertexArray.Bind();
-    texture0.Bind();
+    //texture0.Bind();
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
     
