@@ -5,6 +5,8 @@
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 
+#include "AssetImport.h"
+
 class Renderer;
 class Window {
     public: 

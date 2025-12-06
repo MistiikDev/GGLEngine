@@ -2,7 +2,7 @@
 
 # Compiler
 CXX = g++
-CXXFLAGS = -Wall -std=c++17 -Icore -Iinclude -Iinclude/Vendors -Isrc/Engine/Core -Isrc/Engine/Maths -Isrc/Engine/Graphics -Isrc/Engine/Graphics/Lighting -Isrc/Engine/Graphics/Rendering
+CXXFLAGS = -Wall -std=c++17 -Icore -Iinclude -Iinclude/Vendors -Isrc/Engine/Assets -Isrc/Engine/Core -Isrc/Engine/Maths -Isrc/Engine/Graphics -Isrc/Engine/Graphics/Lighting -Isrc/Engine/Graphics/Rendering
 
 # Libraries
 LDFLAGS = -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32
