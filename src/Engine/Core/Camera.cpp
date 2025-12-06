@@ -21,6 +21,7 @@ void Camera::ComputeMatrix(float nearClip, float farClip, float FieldOfView) {
 
 void Camera::MatrixRender(ShaderInstance& shader, const char* uniform) {    
     GLuint camera_uniform = glGetUniformLocation(shader.ID, uniform);
+    
     glUniformMatrix4fv(camera_uniform, 1, GL_FALSE, glm::value_ptr(CameraMatrix));
 }
 

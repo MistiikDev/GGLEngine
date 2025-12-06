@@ -59,6 +59,16 @@ void ShaderInstance::SetVector3f(const char* uniform, const glm::vec3& vector) {
     glUniform3f(glGetUniformLocation(this->ID, uniform), vector.x, vector.y, vector.z);
 }
 
+void ShaderInstance::SetFloat(const char* uniform, const float value) {
+    if (!this->m_isActive) { 
+        std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
+
+        throw;
+    }
+
+    glUniform1f(glGetUniformLocation(this->ID, uniform), value);
+}
+
 void ShaderInstance::Activate() {
     this->m_isActive = true;
 

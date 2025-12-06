@@ -10,14 +10,6 @@ const glm::vec3 camera_origin = glm::vec3(0.0f, 0.0f, 2.0f);
 const char* DEFAULT_FRAG_SHADER = "src/Engine/Graphics/Shaders/FShaders/default.frag";
 const char* DEFAULT_VERT_SHADER = "src/Engine/Graphics/Shaders/VShaders/default.vert";
 
-const char* LIGHT_FRAG_SHADER = "src/Engine/Graphics/Shaders/FShaders/light.frag";
-const char* LIGHT_VERT_SHADER = "src/Engine/Graphics/Shaders/VShaders/light.vert";
-
-const char* DEFAULT_TEXTURE = "src/Engine/Graphics/Textures/default.jpg";
-
-const char *vertexShaderSource;
-const char *fragShaderSource;
-
 // Vertices coordinates
 GLfloat vertices[] =
 { //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
@@ -82,20 +74,14 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
-
 Renderer::Renderer(Window* window, unsigned int ScreenWidth, unsigned int ScreenHeight)
     : vertexArray(),
       vertexBuffer(vertices, sizeof(vertices)),
-      indexBuffer(indices, sizeof(indices)),
-      texture0(DEFAULT_TEXTURE, GL_TEXTURE0, GL_TEXTURE_2D, GL_RGB, GL_NEAREST, GL_REPEAT),
+      indexBuffer(indices, sizeof(indices)),  //texture0(DEFAULT_TEXTURE, GL_TEXTURE0, GL_TEXTURE_2D, GL_RGB, GL_NEAREST, GL_REPEAT),
+      m_sceneLight(glm::vec3(0.5f)),
       m_shaderInstance(DEFAULT_VERT_SHADER, DEFAULT_FRAG_SHADER),
       m_currentCamera(ScreenWidth, ScreenHeight, camera_origin),
-      m_window(window),
-
-      m_lightVAO(),
-      m_lightVBO(lightVertices, sizeof(lightVertices)),
-      m_lightIndexBuffer(lightIndices, sizeof(lightIndices)),
-      m_lightShader(LIGHT_VERT_SHADER, LIGHT_FRAG_SHADER)
+      m_window(window)
 {
     vertexArray.Bind();
     indexBuffer.Bind();
@@ -109,69 +95,44 @@ Renderer::Renderer(Window* window, unsigned int ScreenWidth, unsigned int Screen
     vertexBuffer.Unbind();
     indexBuffer.Unbind();
 
-    // 
-    // Spawn a light cube for debugging light rendering
-    m_lightVAO.Bind();    
-    m_lightIndexBuffer.Bind();
-
-    m_lightVAO.LinkAttribute(m_lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)(0));
-        
-    m_lightVAO.Unbind();
-    m_lightVBO.Unbind();
-    m_lightIndexBuffer.Unbind();
-
-    glm::mat4 lightTransform = glm::mat4(1.0f);
-    glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-
-    lightTransform = glm::translate(lightTransform, lightPos);
-
-    // Send light data to light shaders
-    m_lightShader.Activate();
-    m_lightShader.SetMatrix4f("light_transform", lightTransform);
-    m_lightShader.SetVector3f("light_color", lightColor);
-
-    //
-    //texture0.Sample(m_shaderInstance, "texture0", 0);
-
     glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::mat4 objectTransform = glm::mat4(1.0f);
     objectTransform = glm::translate(objectTransform, objectPos);
 
     m_shaderInstance.Activate();
+    
     m_shaderInstance.SetMatrix4f("vertexTransform", objectTransform);
-
-    m_shaderInstance.SetVector3f("light_color", lightColor);
-    m_shaderInstance.SetVector3f("light_position", lightPos);
+    m_shaderInstance.SetVector3f("light_color", m_sceneLight.lightColor);
+    m_shaderInstance.SetVector3f("light_position", m_sceneLight.lightCFrame.Position);
 }
-
 
 void Renderer::Render() {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_shaderInstance.Activate();
-
     m_currentCamera.ComputeMatrix(CAMERA_NEAR_Z, CAMERA_FAR_Z, CAMERA_FOV_DEGREES);
     m_currentCamera.Input(m_window->GetGLFWWindow());
+
+    //
+
+    m_shaderInstance.Activate();
+    m_shaderInstance.SetVector3f("light_color", m_sceneLight.lightColor);
+    m_shaderInstance.SetVector3f("light_position", m_sceneLight.lightCFrame.Position);
+
+    m_shaderInstance.SetVector3f("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+    m_shaderInstance.SetVector3f("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+    m_shaderInstance.SetVector3f("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    m_shaderInstance.SetFloat("material.shininess", 32.0f);
+
     m_currentCamera.MatrixRender(m_shaderInstance, "camera_matrix");
 
     vertexArray.Bind();
-    //texture0.Bind();
+    indexBuffer.Bind();
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
-    
-    //
-    // Send camera matrix to light shaders
-    m_lightShader.Activate();
-    m_currentCamera.MatrixRender(m_lightShader, "camera_matrix");
 
-    
-    m_lightVAO.Bind();
-    m_lightIndexBuffer.Bind();
-    glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
-
-
+    // 
+    m_sceneLight.Render();
 
     //
     glfwSwapBuffers(m_window->GetGLFWWindow());
@@ -180,10 +141,9 @@ void Renderer::Render() {
 
 void Renderer::Destroy() {
     m_shaderInstance.Destroy();
+    m_sceneLight.Destroy();
 
     vertexArray.Destroy();
     vertexBuffer.Destroy();
     indexBuffer.Destroy();
-
-    texture0.Destroy();
 }

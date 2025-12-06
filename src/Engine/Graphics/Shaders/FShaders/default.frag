@@ -10,15 +10,29 @@ uniform sampler2D texture0;
 
 uniform vec3 light_color;
 uniform vec3 light_position;
+uniform vec3 camera_position;
+
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
+uniform Material material;
 
 void main(  ) {
-    float ambient_strength = 0.20;
-    float light_dir = max(dot(normal, normalize(light_position - worldPosition)), 0);
+    vec3 viewDir = normalize(light_position - camera_position);
+    vec3 reflectedDir = reflect(viewDir, normal);
 
-    vec3 ambient_lighting = ambient_strength * light_color;
+    float light_dir = max(dot(normal, normalize(light_position - worldPosition)), 0);
+    float spec = pow(max(dot(viewDir, reflectedDir), 0), material.shininess);
+
+    vec3 ambient_lighting = material.ambient * light_color;
+    vec3 specular = spec * material.specular * light_color; 
     vec3 diffuse = light_dir * light_color;
 
-    vec3 result = (ambient_lighting + diffuse) * color;
+    vec3 result = (ambient_lighting + diffuse + specular) * color;
 
     FragColor = vec4(result, 1.0);
 }

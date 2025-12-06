@@ -1,8 +1,6 @@
 #ifndef GGLENGINE_RENDERER_H
 #define GGLENGINE_RENDERER_H
 
-#include <glad/glad.h>    
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -13,6 +11,7 @@
 #include "ShaderInstance.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "PointLight.h"
 
 #include "VAO.h"
 #include "VBO.h"
@@ -29,8 +28,7 @@ class Renderer {
         VBO vertexBuffer;
         EBO indexBuffer;
 
-        Texture texture0;
-        
+        PointLight m_sceneLight;         
         ShaderInstance m_shaderInstance;
         Camera m_currentCamera;
 
@@ -38,11 +36,6 @@ class Renderer {
         void Destroy();
     private:
         Window* m_window;
-
-        VAO m_lightVAO;
-        VBO m_lightVBO;
-        EBO m_lightIndexBuffer;
-        ShaderInstance m_lightShader;
 };
 
 #endif

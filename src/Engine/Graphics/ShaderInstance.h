@@ -25,6 +25,7 @@ class ShaderInstance
         ShaderInstance(const char* vertexShader, const char* fragmentShader);
 
 
+        void SetFloat(const char* uniform, const float value);
         void SetMatrix4f(const char* uniform, const glm::mat4& matrix);
         void SetVector3f(const char* uniform, const glm::vec3& vector);
 
