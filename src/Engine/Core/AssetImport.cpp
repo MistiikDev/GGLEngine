@@ -21,13 +21,15 @@ void AssetImport::_write_GMDL_fromOBJ(const char* objDirectory, const char* targ
 
     std::string currentLineBuffer;
 
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> texUV;
+    std::vector<Vector3> positions;
+    std::vector<Vector3> normals;
+    std::vector<Vector2> texUV;
 
     std::vector<OBJ_FaceData> faceData;
     std::vector<Vertex> verticies;
     std::vector<uint16_t> indicies;
+
+    std::unordered_map<Vertex, uint16_t, VertexHash> VertexToIndex();
 
     ///
     while (std::getline(objFile, currentLineBuffer))
@@ -42,21 +44,21 @@ void AssetImport::_write_GMDL_fromOBJ(const char* objDirectory, const char* targ
             float v_x, v_y, v_z;
             tokenParser >> v_x >> v_y >> v_z;
 
-            positions.push_back(glm::vec3(v_x, v_y, v_z));
+            positions.push_back(Vector3(v_x, v_y, v_z));
         }
         else if (keyword == "vn")
         {
             float n_x, n_y, n_z;
             tokenParser >> n_x >> n_y >> n_z;
 
-            normals.push_back(glm::vec3(n_x, n_y, n_z));
+            normals.push_back(Vector3(n_x, n_y, n_z));
         }
         else if (keyword == "vt")
         {
             float t_x, t_y;
             tokenParser >> t_x >> t_y;
 
-            texUV.push_back(glm::vec2(t_x, t_y));
+            texUV.push_back(Vector2(t_x, t_y));
         }
         else if (keyword == "f")
         {
@@ -102,14 +104,18 @@ void AssetImport::_write_GMDL_fromOBJ(const char* objDirectory, const char* targ
         vn.Position = positions.at(faceData[i].PositionIndex);
         vn1.Position = positions.at(faceData[i + 1].PositionIndex);
 
-        v0.TexUV = faceData[0].UVIndex == -1 ? glm::vec2(1.0f) : texUV.at(faceData[0].UVIndex);
-        vn.TexUV = faceData[i].UVIndex == -1 ? glm::vec2(1.0f) : texUV.at(faceData[i].UVIndex);
-        vn1.TexUV = faceData[i + 1].UVIndex == -1 ? glm::vec2(1.0f) : texUV.at(faceData[i + 1].UVIndex);
+        v0.TexUV = faceData[0].UVIndex == -1 ? Vector2(1.0f, 1.0f) : texUV.at(faceData[0].UVIndex);
+        vn.TexUV = faceData[i].UVIndex == -1 ? Vector2(1.0f, 1.0f) : texUV.at(faceData[i].UVIndex);
+        vn1.TexUV = faceData[i + 1].UVIndex == -1 ? Vector2(1.0f, 1.0f) : texUV.at(faceData[i + 1].UVIndex);
 
         v0.Normal = normals.at(faceData[0].NormalIndex);
         vn.Normal = normals.at(faceData[i].NormalIndex);
         vn1.Normal = normals.at(faceData[i + 1].NormalIndex);
-        
+
+        if (VertexToIndex.count(vn) == 0) {
+            verticies.push_back(vn);
+        }
+
         verticies.push_back(v0);
         verticies.push_back(vn);
         verticies.push_back(vn1);

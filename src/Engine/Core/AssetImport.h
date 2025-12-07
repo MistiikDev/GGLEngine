@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <bits/stdc++.h>
+#include <map>
 #include <vector>
 
 #include "Vertex.h"
