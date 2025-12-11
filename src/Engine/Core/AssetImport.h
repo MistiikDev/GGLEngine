@@ -18,14 +18,14 @@ struct OBJ_FaceData {
     int NormalIndex;
 };
 
-struct G_Model {
+struct G_Mesh {
     std::vector<Vertex> verticies;
     std::vector<int> indicies;
 };
 
 class AssetImport {
     public:
-        static G_Model _load_GMDL(const char* fileDirectory);
+        static G_Mesh _load_GMDL(const char* fileDirectory);
         static void _write_GMDL_fromOBJ(const char* objDirectory, const char* targetDir);
 
     private:

@@ -25,7 +25,8 @@ void AssetImport::_write_GMDL_fromOBJ(const char* objDirectory, const char* targ
     std::vector<Vector3> normals;
     std::vector<Vector2> texUV;
 
-    std::vector<OBJ_FaceData> faceData;
+    std::map<Vertex, uint16_t, VertexHash> VertexToIndex;
+
     std::vector<Vertex> verticies;
     std::vector<uint16_t> indicies;
 
@@ -84,74 +85,57 @@ void AssetImport::_write_GMDL_fromOBJ(const char* objDirectory, const char* targ
                 }
 
                 vertexIndexData.push_back(currentIndex);
+                vertexIndexData.clear();
+                
+                Vector3 vPos = stoi(vertexIndexData[0]) - 1 == -1 ? Vector3(0, 0, 0) : positions[stoi(vertexIndexData[0])  - 1];
+                Vector2 vTexUV = stoi(vertexIndexData[1]) - 1 == -1 ? Vector2(0, 0) : texUV[stoi(vertexIndexData[1]) - 1];
+                Vector3 vNorm = stoi(vertexIndexData[2]) - 1 == -1 ? Vector3(0, 0, 0) : normals[stoi(vertexIndexData[2]) - 1];
+                
+                vPos.print(true);
+                vTexUV.print(true);
+                vNorm.print(true);
 
-                OBJ_FaceData face;
+                Vertex v;
+                v.Position = vPos;
+                v.TexUV = vTexUV;
+                v.Normal = vNorm;
 
-                face.PositionIndex = vertexIndexData[0].empty() ? -1 : std::stoi(vertexIndexData[0]) - 1;
-                face.UVIndex = vertexIndexData[1].empty() ? -1 : std::stoi(vertexIndexData[1]) - 1;
-                face.NormalIndex = vertexIndexData[2].empty() ? -1 : std::stoi(vertexIndexData[2]) - 1;
+                verticies.push_back(v);
 
-                faceData.push_back(face);
+                if (VertexToIndex.count(v)) {
+                    indicies.push_back(VertexToIndex[v]); // If vertex is already there, reuse its index and paste it into the indicies
+                } else {
+                    indicies.push_back(verticies.size() - 1);
+                }
             }
         }
-    }
 
-    for (size_t i = 1; i < faceData.size() - 1; i++) {
-        // Triangulate n-gons from first vertex
-        Vertex v0, vn, vn1;
+        // Save data from verticies and indicies vectors into binary
+        std::ofstream target;
+        target.open(targetDir, std::ios::binary);
 
-        v0.Position = positions.at(faceData[0].PositionIndex);
-        vn.Position = positions.at(faceData[i].PositionIndex);
-        vn1.Position = positions.at(faceData[i + 1].PositionIndex);
+        if (target.is_open()) {
+            size_t verticies_size = sizeof(Vertex) * verticies.size();
+            size_t indicies_size = sizeof(uint16_t) * indicies.size();
 
-        v0.TexUV = faceData[0].UVIndex == -1 ? Vector2(1.0f, 1.0f) : texUV.at(faceData[0].UVIndex);
-        vn.TexUV = faceData[i].UVIndex == -1 ? Vector2(1.0f, 1.0f) : texUV.at(faceData[i].UVIndex);
-        vn1.TexUV = faceData[i + 1].UVIndex == -1 ? Vector2(1.0f, 1.0f) : texUV.at(faceData[i + 1].UVIndex);
+            std::cout << verticies_size << std::endl;
+            std::cout << indicies_size << std::endl;
 
-        v0.Normal = normals.at(faceData[0].NormalIndex);
-        vn.Normal = normals.at(faceData[i].NormalIndex);
-        vn1.Normal = normals.at(faceData[i + 1].NormalIndex);
+            target.write((char*)&verticies_size, sizeof(size_t));
+            target.write((char*)&indicies_size, sizeof(size_t));
 
-        if (VertexToIndex.count(vn) == 0) {
-            verticies.push_back(vn);
+            target.write((char*)verticies.data(), verticies_size);
+            target.write((char*)indicies.data(), indicies_size);
+        } else {
+            AssetImport::logMessage("ERROR WRITING BINARIES");
         }
-
-        verticies.push_back(v0);
-        verticies.push_back(vn);
-        verticies.push_back(vn1);
-
-        indicies.push_back(0);
-        indicies.push_back(i);
-        indicies.push_back(i + 1);
-    }
-
-    // Write vectors as bytes to file
-
-    size_t vertex_count = verticies.size();
-    size_t indicies_count = indicies.size();
-
-    std::ofstream targetFile;
-    std::string targetFileDir = std::string(targetDir) + ".gmdl";
-
-    targetFile.open(targetFileDir, std::ios::binary);
-    
-    if (targetFile.is_open()) {
-        // First 2 lines allocated to vertex and indicies count for allocation later
-        targetFile.write((char*)&vertex_count, sizeof(size_t));
-        targetFile.write((char*)&indicies_count, sizeof(size_t));
-
-        targetFile.write((char*)verticies.data(), vertex_count * sizeof(Vertex));
-        targetFile.write((char*)indicies.data(), indicies_count * sizeof(uint16_t));
-
-        targetFile.close();
-    } else {
-        AssetImport::logMessage("ERROR CREATING BINARIES");
-        throw EXIT_FAILURE;
-    }
+    }   
 }
 
-G_Model AssetImport::_load_GMDL(const char* targetGMDL) {
+G_Mesh AssetImport::_load_GMDL(const char* targetGMDL) {
     std::ifstream loadStream;
+
+    G_Mesh gmdlMesh;
 
     loadStream.open(targetGMDL, std::ios::binary);
 
