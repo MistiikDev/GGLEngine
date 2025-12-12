@@ -9,6 +9,19 @@ VBO::VBO(float* verticies, unsigned int size) {
     glBindBuffer(GL_ARRAY_BUFFER, this->ID);
 
     glBufferData(GL_ARRAY_BUFFER, size, verticies, GL_STATIC_DRAW);
+
+    totalByteSize = size;
+}
+
+VBO::VBO(std::vector<Vertex> verticies) {
+    glGenBuffers(1, &this->ID);
+    glBindBuffer(GL_ARRAY_BUFFER, this->ID);
+
+    totalByteSize = verticies.size() * sizeof(Vertex);
+
+    const void* rawDataPtr = verticies.data();
+
+    glBufferData(GL_ARRAY_BUFFER, totalByteSize, rawDataPtr, GL_STATIC_DRAW);
 }
 
 void VBO::Bind() {

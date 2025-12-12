@@ -1,26 +1,25 @@
 #ifndef GGLENGINE_ASSETIMPORT_H
 #define GGLENGINE_ASSETIMPORT_H
 
-#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <bits/stdc++.h>
+
+#include <string>
 #include <map>
 #include <vector>
 
 #include "Vertex.h"
+#include "OBJImport.h"
+#include "StringUtils.h"
 
-struct OBJ_FaceData {
-    int PositionIndex;
-    int UVIndex;
-    int NormalIndex;
-};
+#pragma once
+
 
 struct G_Mesh {
     std::vector<Vertex> verticies;
-    std::vector<int> indicies;
+    std::vector<uint16_t> indicies;
 };
 
 class AssetImport {

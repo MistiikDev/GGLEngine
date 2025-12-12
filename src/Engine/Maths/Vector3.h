@@ -11,7 +11,7 @@ struct Vector3 {
         std::cout << "X :" << x << " / Y : " << y << " / Z :" << z << (nSpace ? "\n" : "");
     }
 
-    bool operator==(Vector3 rhs) {
+    bool operator==(const Vector3 rhs) const {
         return x == rhs.x && y == rhs.y && z == rhs.z;
     }
 };

@@ -11,7 +11,7 @@ struct Vector2 {
         std::cout << "X :" << x << " / Y : " << y << (nSpace ? "\n" : "");
     }
 
-    bool operator==(Vector2 rhs) {
+    bool operator==(const Vector2 rhs) const {
         return x == rhs.x && y == rhs.y;
     }
 };
