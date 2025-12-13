@@ -1,11 +1,26 @@
 #include "OBJImport.h"
 
-OBJ_Data OBJImport::_loadOBJ( const char* fileDirectory ) {
+OBJ OBJImport::_loadOBJ( const char* fileDirectory ) {
+    OBJ _obj;
+
+    std::string objLocation = std::string(fileDirectory) + OBJ_EXTENSION;
+    std::string mtlLocation = std::string(fileDirectory) + MTL_EXTENSION;
+
+    MTL_Data _mtl_data = OBJImport::_readMTL(mtlLocation.c_str());
+    OBJ_Data _obj_data = OBJImport::_readOBJ(objLocation.c_str());
+
+    _obj.geometryData = _obj_data;
+    _obj.materials = _mtl_data;
+
+    return _obj;
+}
+
+OBJ_Data OBJImport::_readOBJ(const char* objFile) {
     OBJ_Data _obj_data;
 
-    std::ifstream objFile(fileDirectory);
+    std::ifstream objStream(objFile);
 
-    if (!objFile.is_open())
+    if (!objStream.is_open())
     {
         std::cout << ERR_LOAD_MODEL;
         throw EXIT_FAILURE;
@@ -21,16 +36,25 @@ OBJ_Data OBJImport::_loadOBJ( const char* fileDirectory ) {
     std::vector<uint16_t> indicies;
 
     std::unordered_map<Vertex, uint16_t, VertexHash> VertexToIndex;
+    std::unordered_map<Vertex, std::string, VertexHash> VertexToMaterial;
+
+    std::string currentMaterial;
 
     ///
-    while (std::getline(objFile, currentLineBuffer))
+    while (std::getline(objStream, currentLineBuffer))
     {
         std::stringstream tokenParser(currentLineBuffer);
         std::string keyword;
 
         tokenParser >> keyword;
 
-        if (keyword == "v" || keyword == "vn")
+        if (keyword == "usemtl") {
+            std::string materialName;
+            tokenParser >> materialName;
+
+            currentMaterial = materialName;
+        } 
+        else if (keyword == "v" || keyword == "vn")
         {
             float x, y, z;
             tokenParser >> x >> y >> z;
@@ -76,6 +100,10 @@ OBJ_Data OBJImport::_loadOBJ( const char* fileDirectory ) {
                 }
                 else
                 {
+                    if (!currentMaterial.empty() && !VertexToMaterial.count(v) ) {
+                        VertexToMaterial[v] = currentMaterial;
+                    }
+
                     verticies.push_back(v);
                     VertexToIndex[v] = verticies.size() - 1;
                     tempIndicies.push_back(verticies.size() - 1);
@@ -103,8 +131,82 @@ OBJ_Data OBJImport::_loadOBJ( const char* fileDirectory ) {
         }
     }
 
+    std::cout << "[OBJ IMPORT] Successfully loaded : "
+          << verticies.size()
+          << " vertices ("
+          << indicies.size()
+          << " indices).\n";
+
     _obj_data.vertices = verticies;
     _obj_data.indicies = indicies;
+    _obj_data.VertexToMaterial = VertexToMaterial;
 
     return _obj_data;
+}
+
+
+MTL_Data OBJImport::_readMTL( const char* mtlFile ) {
+    MTL_Data _mtl_Data;
+
+    std::ifstream mtlStream(mtlFile);
+
+    if (!mtlStream.good()) {
+        std::cout << WARN_NO_MTL;
+
+        return _mtl_Data;
+    } else if (!mtlStream.is_open())
+    {
+        std::cout << ERR_LOAD_MODEL;
+        throw EXIT_FAILURE;
+    }
+
+    std::string currentLineBuffer;
+    std::vector<MTL_Material> materials;
+
+    MTL_Material currentMaterial;
+
+    while (std::getline(mtlStream, currentLineBuffer)) {
+        std::stringstream tokenParser(currentLineBuffer);
+        std::string keyword;
+
+        tokenParser >> keyword;
+
+        if (keyword == "newmtl") {
+            if (currentMaterial.matName != nullptr) {
+                // If there is a material already, add it to the list then reset its data
+                materials.push_back(currentMaterial); 
+            }
+
+            std::string materialName;
+            tokenParser >> materialName;
+
+            currentMaterial = MTL_Material {};
+            currentMaterial.matName = materialName.c_str();
+
+        } else if (keyword == "Ns") {
+            float specular_factor;
+            tokenParser >> specular_factor;
+
+            currentMaterial.specular_factor = specular_factor;
+        } else if (keyword == "Ka") {
+            float ax, ay, az;
+
+            tokenParser >> ax >> ay >> az;
+            currentMaterial.ambiantColor = Vector3(ax, ay, az);
+        } else if (keyword == "Kd") {
+            float dx, dy, dz;
+
+            tokenParser >> dx >> dy >> dz;
+            currentMaterial.diffuseColor = Vector3(dx, dy, dz);
+        } else if (keyword == "Ks") {
+            float sx, sy, sz;
+
+            tokenParser >> sx >> sy >> sz;
+            currentMaterial.specularColor = Vector3(sx, sy, sz);
+        }
+    }
+
+    std::cout << "[OBJ IMPORT] Successfully loaded : " << materials.size() << " materials.\n";
+
+    return _mtl_Data;
 }

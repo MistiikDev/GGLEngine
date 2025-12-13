@@ -7,15 +7,12 @@
 
 #include <stb/stb_image.h>
 #include <iostream>
+#include <memory>
 
-#include "ShaderInstance.h"
-#include "Texture.h"
 #include "Camera.h"
 #include "PointLight.h"
-
-#include "VAO.h"
-#include "VBO.h"
-#include "EBO.H"
+#include "Mesh.h"
+#include "OBJImport.h"
 
 class Window;
 class Renderer {
@@ -23,19 +20,15 @@ class Renderer {
         bool b_isRendering;
 
         Renderer(Window* window, unsigned int ScreenWidth, unsigned int ScreenHeight);
-        
-        VAO vertexArray;
-        VBO vertexBuffer;
-        EBO indexBuffer;
 
-        PointLight m_sceneLight;         
-        ShaderInstance m_shaderInstance;
+        PointLight m_sceneLight;
         Camera m_currentCamera;
 
         void Render();
         void Destroy();
     private:
         Window* m_window;
+        std::unique_ptr<Mesh> m_mesh;
 };
 
 #endif

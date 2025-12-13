@@ -4,6 +4,7 @@
 #pragma once
 
 struct Vertex {
+    // ORDER MATTERS FOR PASSING ON SHADER
     Vector3 Position;
     Vector3 Color;
 

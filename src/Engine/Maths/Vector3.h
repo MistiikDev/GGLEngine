@@ -7,10 +7,6 @@ struct Vector3 {
     Vector3() : x(0), y(0), z(0) {};
     Vector3(float x, float y, float z): x(x), y(y), z(z) {};
 
-    void print( bool nSpace = false ) {
-        std::cout << "X :" << x << " / Y : " << y << " / Z :" << z << (nSpace ? "\n" : "");
-    }
-
     bool operator==(const Vector3 rhs) const {
         return x == rhs.x && y == rhs.y && z == rhs.z;
     }

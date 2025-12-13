@@ -4,6 +4,10 @@
 void procces_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
 

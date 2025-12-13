@@ -7,10 +7,6 @@ struct Vector2 {
     Vector2() : x(0), y(0) {};
     Vector2(float x, float y): x(x), y(y) {};
 
-    void print( bool nSpace = false ) {
-        std::cout << "X :" << x << " / Y : " << y << (nSpace ? "\n" : "");
-    }
-
     bool operator==(const Vector2 rhs) const {
         return x == rhs.x && y == rhs.y;
     }
