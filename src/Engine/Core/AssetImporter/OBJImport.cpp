@@ -70,14 +70,13 @@ OBJ_Data OBJImport::_loadOBJ( const char* fileDirectory ) {
                 v.Normal = vNorm;
                 v.Color = Vector3(1.0f, 1.0f, 1.0f);
 
-                verticies.push_back(v);
-
                 if (VertexToIndex.count(v))
                 {
                     tempIndicies.push_back(VertexToIndex[v]);
                 }
                 else
                 {
+                    verticies.push_back(v);
                     VertexToIndex[v] = verticies.size() - 1;
                     tempIndicies.push_back(verticies.size() - 1);
                 }

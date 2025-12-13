@@ -70,7 +70,7 @@ void Renderer::Render() {
 
     vertexArray.Bind();
     indexBuffer.Bind();
-    glDrawElements(GL_TRIANGLES, indexBuffer.totalByteSize / sizeof(uint32_t), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indexBuffer.totalByteSize / sizeof(uint16_t), GL_UNSIGNED_SHORT, 0);
 
 
     // 
