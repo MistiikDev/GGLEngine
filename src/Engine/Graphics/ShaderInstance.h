@@ -16,6 +16,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Vector3.h"
+
 std::string get_shader_code(const char* shaderFile);
 
 class ShaderInstance
@@ -28,6 +30,8 @@ class ShaderInstance
         void SetFloat(const char* uniform, const float value);
         void SetMatrix4f(const char* uniform, const glm::mat4& matrix);
         void SetVector3f(const char* uniform, const glm::vec3& vector);
+        void SetVector3f(const char* uniform, const Vector3& vector);
+        
 
         void CompilationErrors(unsigned int ShaderID, const char* shaderCompilationType);
 

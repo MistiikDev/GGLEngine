@@ -12,11 +12,11 @@
 class EBO {
     public:
         GLuint ID;
-        uint32_t totalByteSize;
+        size_t totalByteSize;
         
         EBO() = default;
         EBO(unsigned int* indicies, unsigned int size);
-        EBO(std::vector<uint16_t> verticies);
+        EBO(std::vector<uint32_t> verticies);
 
         void Bind();
         void Unbind();

@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "Mesh.h"
 #include "Vertex.h"
 #include "StringUtils.h"
 #include "Log.h"
@@ -24,29 +25,15 @@ const inline char* ERR_LOAD_MODEL = "ERROR LOADING MODEL";
 const inline char* ERR_WRITE_MODEL = "ERROR WRITING MODEL";
 const inline char* ERR_LOAD_GMDL = "ERROR LOADING GMDL BINARY";
 
-struct MTL_Material {    
-    uint8_t illuminationMode;
-
-    float refraction_index;
-    float specular_factor;
-
-    Vector3 ambiantColor;
-    Vector3 diffuseColor;
-    Vector3 specularColor;
-    Vector3 emissiveColor;
-
-    const char* matName;
-};
-
 struct OBJ_Data {
     std::vector<Vertex> vertices;
-    std::vector<uint16_t> indicies;
+    std::vector<uint32_t> indicies;
 
-    std::unordered_map<Vertex, std::string, VertexHash> VertexToMaterial;
+    std::vector<SubMesh> sub_meshes;
 };
 
 struct MTL_Data {
-    std::vector<MTL_Material> materials;
+    std::vector<Material> materials;
 };
 
 struct OBJ {
@@ -59,7 +46,7 @@ class OBJImport {
         static OBJ _loadOBJ(const char* fileDirectory);
 
     private:
-        static OBJ_Data _readOBJ(const char* objName);
+        static OBJ_Data _readOBJ(const char* objName, MTL_Data& materials);
         static MTL_Data _readMTL(const char* mtlName);
 };
 

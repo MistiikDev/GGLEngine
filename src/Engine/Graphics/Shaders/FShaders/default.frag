@@ -22,17 +22,20 @@ struct Material {
 uniform Material material;
 
 void main(  ) {
-    vec3 viewDir = normalize(light_position - camera_position);
-    vec3 reflectedDir = reflect(viewDir, normal);
+    float lightIntensity = 3.0;
 
-    float light_dir = max(dot(normal, normalize(light_position - worldPosition)), 0);
-    float spec = pow(max(dot(viewDir, reflectedDir), 0), material.shininess);
+    vec3 viewDir = normalize(camera_position - worldPosition);
+    vec3 lightDir = normalize(vec3(-10, 10.0, 10.0) - worldPosition);
+    vec3 reflectedDir = reflect(-lightDir, normal);
 
-    vec3 ambient_lighting = material.ambient * light_color;
-    vec3 specular = spec * material.specular * light_color; 
-    vec3 diffuse = light_dir * light_color;
+    float light_dir = max(dot(normal, normalize(vec3(-10, 10.0, 10.0) - worldPosition)), 0);
+    float spec = pow(max(dot(viewDir, reflectedDir), 0), material.shininess * 10);
 
-    vec3 result = (ambient_lighting + diffuse + specular) * color;
+    vec3 ambient_lighting = material.ambient * vec3(1.0f, 1.0f, 1.0f);
+    vec3 specular = spec * material.specular * vec3(1.0f, 1.0f, 1.0f); 
+    vec3 diffuse = light_dir * material.diffuse * vec3(1.0f, 1.0f, 1.0f);
 
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    vec3 result = (ambient_lighting + diffuse + specular) * color * lightIntensity;
+
+    FragColor = vec4(result, 1.0);
 }

@@ -49,6 +49,16 @@ void ShaderInstance::SetMatrix4f(const char* uniform, const glm::mat4& matrix) {
     glUniformMatrix4fv(glGetUniformLocation(this->ID, uniform), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void ShaderInstance::SetVector3f(const char* uniform, const Vector3& vector) {
+    if (!this->m_isActive) { 
+        std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
+
+        throw;
+    }
+
+    glUniform3f(glGetUniformLocation(this->ID, uniform), vector.x, vector.y, vector.z);
+}
+
 void ShaderInstance::SetVector3f(const char* uniform, const glm::vec3& vector) {
     if (!this->m_isActive) { 
         std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";

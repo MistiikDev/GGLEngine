@@ -12,11 +12,11 @@ EBO::EBO(unsigned int* indicies, unsigned int size) {
     totalByteSize = size;
 }
 
-EBO::EBO(std::vector<uint16_t> indicies) {
+EBO::EBO(std::vector<uint32_t> indicies) {
     glGenBuffers(1, &this->ID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ID);
 
-    totalByteSize = indicies.size() * sizeof(uint16_t);
+    totalByteSize = indicies.size() * sizeof(uint32_t);
 
     const void* rawDataPtr = indicies.data();
 

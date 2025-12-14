@@ -7,7 +7,7 @@ OBJ OBJImport::_loadOBJ( const char* fileDirectory ) {
     std::string mtlLocation = std::string(fileDirectory) + MTL_EXTENSION;
 
     MTL_Data _mtl_data = OBJImport::_readMTL(mtlLocation.c_str());
-    OBJ_Data _obj_data = OBJImport::_readOBJ(objLocation.c_str());
+    OBJ_Data _obj_data = OBJImport::_readOBJ(objLocation.c_str(), _mtl_data);
 
     _obj.geometryData = _obj_data;
     _obj.materials = _mtl_data;
@@ -15,7 +15,7 @@ OBJ OBJImport::_loadOBJ( const char* fileDirectory ) {
     return _obj;
 }
 
-OBJ_Data OBJImport::_readOBJ(const char* objFile) {
+OBJ_Data OBJImport::_readOBJ(const char* objFile, MTL_Data& material_data) {
     OBJ_Data _obj_data;
 
     std::ifstream objStream(objFile);
@@ -33,12 +33,15 @@ OBJ_Data OBJImport::_readOBJ(const char* objFile) {
     std::vector<Vector2> texUV;
 
     std::vector<Vertex> verticies;
-    std::vector<uint16_t> indicies;
+    std::vector<uint32_t> indicies;
+    std::unordered_map<Vertex, uint32_t, VertexHash> VertexToIndex;
 
-    std::unordered_map<Vertex, uint16_t, VertexHash> VertexToIndex;
-    std::unordered_map<Vertex, std::string, VertexHash> VertexToMaterial;
+    std::vector<SubMesh> sub_meshes;
+   
 
-    std::string currentMaterial;
+    SubMesh currentSubMesh;
+    currentSubMesh.indiciesCount = 0;
+    currentSubMesh.indiciesOffset = 0;
 
     ///
     while (std::getline(objStream, currentLineBuffer))
@@ -49,10 +52,29 @@ OBJ_Data OBJImport::_readOBJ(const char* objFile) {
         tokenParser >> keyword;
 
         if (keyword == "usemtl") {
+            //
             std::string materialName;
             tokenParser >> materialName;
 
-            currentMaterial = materialName;
+            if (currentSubMesh.indiciesCount > 0 && !currentSubMesh.materialName.empty()) {
+                sub_meshes.push_back(currentSubMesh);
+            }
+
+            currentSubMesh = SubMesh {};
+            currentSubMesh.indiciesCount = 0;
+            currentSubMesh.indiciesOffset = indicies.size();
+            currentSubMesh.materialName = "";
+            
+            auto it = std::find_if(material_data.materials.begin(), material_data.materials.end(), [&](const Material& mat) {
+                return mat.materialName == materialName;
+            });
+
+            if (it != material_data.materials.end()) {
+                currentSubMesh.materialName = (*it).materialName;
+            } else {
+                std::cerr << "[OBJ] Material not found: " << materialName << "\n";
+                currentSubMesh.materialName = "";
+            }
         } 
         else if (keyword == "v" || keyword == "vn")
         {
@@ -72,7 +94,7 @@ OBJ_Data OBJImport::_readOBJ(const char* objFile) {
         {
             std::string vertData;
             std::vector<std::string> vertexIndexData;
-            std::vector<uint16_t> tempIndicies;
+            std::vector<uint32_t> tempIndicies;
 
             while (tokenParser >> vertData)
             {
@@ -94,52 +116,54 @@ OBJ_Data OBJImport::_readOBJ(const char* objFile) {
                 v.Normal = vNorm;
                 v.Color = Vector3(1.0f, 1.0f, 1.0f);
 
-                if (VertexToIndex.count(v))
-                {
-                    tempIndicies.push_back(VertexToIndex[v]);
-                }
-                else
-                {
-                    if (!currentMaterial.empty() && !VertexToMaterial.count(v) ) {
-                        VertexToMaterial[v] = currentMaterial;
-                    }
-
-                    verticies.push_back(v);
-                    VertexToIndex[v] = verticies.size() - 1;
-                    tempIndicies.push_back(verticies.size() - 1);
-                }
+                verticies.push_back(v);
+                tempIndicies.push_back(verticies.size() - 1);
             }
 
             // Process the face data (triangulate if necessary)
             if (tempIndicies.size() > 3) {
                 // Modifiy the temp indicies vector
 
-                uint16_t pivotIndex = tempIndicies[0];
+                uint32_t pivotIndex = tempIndicies[0];
 
                 for (int i = 1; i < tempIndicies.size() - 1; i++) {
-                    uint16_t currentIndex = tempIndicies[i];
-                    uint16_t neighbourIndex = tempIndicies[i + 1];
+                    uint32_t currentIndex = tempIndicies[i];
+                    uint32_t neighbourIndex = tempIndicies[i + 1];
 
                     // Push back current triangle
                     indicies.push_back(pivotIndex);
                     indicies.push_back(currentIndex);
                     indicies.push_back(neighbourIndex);
+
+                    currentSubMesh.indiciesCount += 3;
                 }
             } else {
                 indicies.insert(indicies.end(), tempIndicies.begin(), tempIndicies.end());
+                currentSubMesh.indiciesCount += 3;
             }
         }
     }
 
+    if (currentSubMesh.indiciesCount > 0) {
+        sub_meshes.push_back(currentSubMesh);
+    }
+
     std::cout << "[OBJ IMPORT] Successfully loaded : "
           << verticies.size()
-          << " vertices ("
+          << " vertices with " << 
+          sub_meshes.size() << " sub groups ("
           << indicies.size()
           << " indices).\n";
 
+    for (auto sub_mesh : sub_meshes) {
+        std::cout << "[OBJ IMPORT] Added Sub Mesh : " << 
+        sub_mesh.materialName << 
+        " with " << sub_mesh.indiciesCount << " indicies at offset " << sub_mesh.indiciesOffset << std::endl;
+    }
+
     _obj_data.vertices = verticies;
     _obj_data.indicies = indicies;
-    _obj_data.VertexToMaterial = VertexToMaterial;
+    _obj_data.sub_meshes = sub_meshes;
 
     return _obj_data;
 }
@@ -161,9 +185,9 @@ MTL_Data OBJImport::_readMTL( const char* mtlFile ) {
     }
 
     std::string currentLineBuffer;
-    std::vector<MTL_Material> materials;
+    std::vector<Material> materials;
 
-    MTL_Material currentMaterial;
+    Material currentMaterial;
 
     while (std::getline(mtlStream, currentLineBuffer)) {
         std::stringstream tokenParser(currentLineBuffer);
@@ -172,7 +196,7 @@ MTL_Data OBJImport::_readMTL( const char* mtlFile ) {
         tokenParser >> keyword;
 
         if (keyword == "newmtl") {
-            if (currentMaterial.matName != nullptr) {
+            if (!currentMaterial.materialName.empty()) {
                 // If there is a material already, add it to the list then reset its data
                 materials.push_back(currentMaterial); 
             }
@@ -180,8 +204,8 @@ MTL_Data OBJImport::_readMTL( const char* mtlFile ) {
             std::string materialName;
             tokenParser >> materialName;
 
-            currentMaterial = MTL_Material {};
-            currentMaterial.matName = materialName.c_str();
+            currentMaterial = Material {};
+            currentMaterial.materialName = materialName;
 
         } else if (keyword == "Ns") {
             float specular_factor;
@@ -206,7 +230,14 @@ MTL_Data OBJImport::_readMTL( const char* mtlFile ) {
         }
     }
 
+    if (!currentMaterial.materialName.empty()) {
+        // If there is a material already, add it to the list then reset its data
+        materials.push_back(currentMaterial); 
+    }
+
     std::cout << "[OBJ IMPORT] Successfully loaded : " << materials.size() << " materials.\n";
+
+    _mtl_Data.materials = materials;
 
     return _mtl_Data;
 }

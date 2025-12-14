@@ -11,10 +11,15 @@ PointLight::PointLight(glm::vec3 position):
     m_lightShader.Activate();
     m_lightShader.SetMatrix4f("light_transform", lightCFrame.toMatrix());
     m_lightShader.SetVector3f("light_color", lightColor);
+    m_lightShader.SetVector3f("light_position", position);
 };
 
 void PointLight::Render() {
     m_lightShader.Activate();
+
+    m_lightShader.SetMatrix4f("light_transform", lightCFrame.toMatrix());
+    m_lightShader.SetVector3f("light_color", lightColor);
+    m_lightShader.SetVector3f("light_position", lightCFrame.Position);
 }
 
 void PointLight::Destroy() {

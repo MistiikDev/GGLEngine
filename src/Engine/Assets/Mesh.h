@@ -2,6 +2,7 @@
 #define GGLENGINE_MESH_H
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glad/glad.h> 
@@ -16,24 +17,42 @@
 #include "ShaderInstance.h"
 #include "Camera.h"
 
-struct MeshMaterial {
+
+struct SubMesh {
+    size_t indiciesCount;
+    size_t indiciesOffset; // Offset relating to parent mesh (4 if fifth index = fifth vertex....)
+
+    std::string materialName;
+};
+
+
+struct Material {
     float specular_factor;
+
+    std::string materialName;
 
     Vector3 ambiantColor;
     Vector3 diffuseColor;
     Vector3 specularColor;
     Vector3 emissiveColor;
 
-    const char* matName;
+    bool operator==( const Material& rhs ) const {
+        return ambiantColor == rhs.ambiantColor && diffuseColor == rhs.diffuseColor && specularColor == rhs.specularColor && specularColor == rhs.emissiveColor && materialName == rhs.materialName;
+    }
 };
 
 class Mesh {
     public:
         glm::vec3 position;
-        std::vector<Vertex> verticies;
-        std::vector<uint16_t> indicies;
 
-        Mesh(std::vector<Vertex> in_verticies, std::vector<uint16_t> in_indicies);
+        std::vector<Vertex> verticies;
+        std::vector<uint32_t> indicies;
+        std::vector<SubMesh> sub_meshes;
+        std::vector<Material> materials;
+
+        Mesh(std::vector<Vertex>&& in_verticies, std::vector<uint32_t>&& in_indicies, std::vector<SubMesh>&& in_submeshes, std::vector<Material>&& meshMaterials);
+
+        std::unordered_map<std::string, Material> name_to_mat;
 
         void Draw(Camera& currentCamera);
     private:
@@ -43,5 +62,5 @@ class Mesh {
 
         ShaderInstance m_shader;
 };
-
 #endif
+
