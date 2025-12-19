@@ -10,9 +10,8 @@
 
 #include "Vector3.h"
 #include "Vertex.h"
-#include "VAO.h"
-#include "VBO.h"
-#include "EBO.h"
+#include "GLArray.h"
+#include "GLBuf.h"
 
 #include "ShaderInstance.h"
 #include "Camera.h"
@@ -56,9 +55,9 @@ class Mesh {
 
         void Draw(Camera& currentCamera);
     private:
-        VAO m_modelVertexArray;
-        VBO m_modelBuffer;
-        EBO m_modelIndexBuffer;
+        GLArray m_modelVertexArray;
+        GLBuf m_modelBuffer;
+        GLBuf m_modelIndexBuffer;
 
         ShaderInstance m_shader;
 };

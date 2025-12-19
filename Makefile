@@ -2,7 +2,15 @@
 
 # Compiler
 CXX = g++
-CXXFLAGS = -Wall -std=c++17 -Icore -Iinclude -Iinclude/Vendors -Isrc/Engine/Util -Isrc/Engine/Assets -Isrc/Engine/Core -Isrc/Engine/Core/AssetImporter -Isrc/Engine/Maths -Isrc/Engine/Graphics -Isrc/Engine/Graphics/Lighting -Isrc/Engine/Graphics/Rendering
+
+# Find all directories under 'src', 'include', and 'core'
+INC_DIRS  := $(shell find src include core -type d 2> /dev/null)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+# 3. FLAGS
+# -MMD -MP creates .d files to track header dependencies
+CXXFLAGS  := -Wall -std=c++17 $(INC_FLAGS) -MMD -MP
+LDFLAGS   := -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32
 
 # Libraries
 LDFLAGS = -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32

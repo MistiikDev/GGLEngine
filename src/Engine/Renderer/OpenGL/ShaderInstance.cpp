@@ -5,6 +5,9 @@
 #include "ShaderInstance.h"
 
 ShaderInstance::ShaderInstance(const char* vertexShader, const char* fragShader) {
+    std::cout << "Now here!\n";
+
+    std::cout << vertexShader << std::endl;
     std::string vertexCode = get_shader_code(vertexShader);
     std::string fragCode = get_shader_code(fragShader);
 

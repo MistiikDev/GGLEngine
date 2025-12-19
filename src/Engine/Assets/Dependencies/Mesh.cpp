@@ -17,14 +17,18 @@ Mesh::Mesh(std::vector<Vertex>&& in_verticies, std::vector<uint32_t>&& in_indici
         }
     } // Setup material hash map
 
-    m_modelVertexArray = VAO { };
-    m_modelBuffer = VBO { verticies };
-    m_modelIndexBuffer = EBO { indicies };
+    m_modelVertexArray = GLArray { };
+    m_modelBuffer = GLBuf { };
+    m_modelIndexBuffer = GLBuf { };
+
+    m_modelBuffer.BufferData(verticies);
+    m_modelIndexBuffer.BufferData(indicies);
 
     m_modelVertexArray.Bind();
     m_modelBuffer.Bind();
     m_modelIndexBuffer.Bind();
 
+    //
     m_modelVertexArray.LinkAttribute(m_modelBuffer, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); // Position Attribute
     m_modelVertexArray.LinkAttribute(m_modelBuffer, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)( 3 * sizeof(float))); // Color Attribute
     m_modelVertexArray.LinkAttribute(m_modelBuffer, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)( 6 * sizeof(float))); // TexUV Attribute
