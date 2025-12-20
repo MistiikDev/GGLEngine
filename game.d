@@ -1,2 +1,2 @@
-game.exe: Core/stb_image.cpp include/Vendors/stb/stb_image.h
-include/Vendors/stb/stb_image.h:
+game.exe: core/stb_image.cpp third_party/stb/stb_image.h
+third_party/stb/stb_image.h:

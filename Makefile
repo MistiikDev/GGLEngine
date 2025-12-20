@@ -4,19 +4,19 @@
 CXX = g++
 
 # Find all directories under 'src', 'include', and 'core'
-INC_DIRS  := $(shell find src include core -type d 2> /dev/null)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+INC_FLAGS := -Isrc/engine/include -Ithird_party -Ithird_party/GLAD -Ithird_party/GLFW -Ithird_party/GLM -Ithird_party/KHR -Ithird_party/stb
 
 # 3. FLAGS
 # -MMD -MP creates .d files to track header dependencies
-CXXFLAGS  := -Wall -std=c++17 $(INC_FLAGS) -MMD -MP
+CXXFLAGS  := -Wall -std=c++17 $(INC_FLAGS) -MMD -MP -fconcepts
 LDFLAGS   := -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32
 
 # Libraries
 LDFLAGS = -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32
 
 # Source files
-SRC := $(shell find src Core -type f \( -name "*.cpp" -o -name "*.c" \))
+SRC := $(shell find src -type f \( -name "*.cpp" -o -name "*.c" \))
+SRC += $(shell find core -type f \( -name "*.cpp" -o -name "*.c" \))
 OBJ := $(SRC:.cpp=.o)
 OBJ := $(OBJ:.c=.o)
 

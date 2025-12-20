@@ -1,0 +1,16 @@
+#ifndef VECTOR3_H
+#define VECTOR3_H
+
+struct Vector3 {
+    float x, y, z;
+
+    Vector3() : x(0), y(0), z(0) {};
+    Vector3(float x, float y, float z): x(x), y(y), z(z) {};
+    Vector3(float a): x(a), y(a), z(a) {};
+
+    bool operator==(const Vector3 rhs) const {
+        return x == rhs.x && y == rhs.y && z == rhs.z;
+    }
+};
+
+#endif

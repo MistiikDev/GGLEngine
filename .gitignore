@@ -21,3 +21,4 @@ core/glad.c
 
 # Ignore large vendor headers
 include/Vendors/
+third_party
