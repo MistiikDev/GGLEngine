@@ -4,7 +4,7 @@
 
 #include <render/OpenGL/GLShader.h>
 
-GLShader::GLShader(const char* vertexShader, const char* fragShader) {
+GLShader::GLShader( const char* vertexShader, const char* fragShader ) {
     std::string vertexCode = get_shader_code(vertexShader);
     std::string fragCode = get_shader_code(fragShader);
 
@@ -39,7 +39,7 @@ GLShader::GLShader(const char* vertexShader, const char* fragShader) {
     glDeleteShader(fragShaderObject);
 }
 
-void GLShader::SetMatrix4f(const char* uniform, const glm::mat4& matrix) {
+void GLShader::SetMatrix4f( const char* uniform, const glm::mat4& matrix ) {
     if (!this->m_isActive) { 
         std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
 
@@ -49,7 +49,7 @@ void GLShader::SetMatrix4f(const char* uniform, const glm::mat4& matrix) {
     glUniformMatrix4fv(glGetUniformLocation(this->ID, uniform), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void GLShader::SetVector3f(const char* uniform, const Vector3& vector) {
+void GLShader::SetVector3f( const char* uniform, const Vector3& vector ) {
     if (!this->m_isActive) { 
         std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
 
@@ -59,7 +59,7 @@ void GLShader::SetVector3f(const char* uniform, const Vector3& vector) {
     glUniform3f(glGetUniformLocation(this->ID, uniform), vector.x, vector.y, vector.z);
 }
 
-void GLShader::SetVector3f(const char* uniform, const glm::vec3& vector) {
+void GLShader::SetVector3f( const char* uniform, const glm::vec3& vector ) {
     if (!this->m_isActive) { 
         std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
 
@@ -69,7 +69,7 @@ void GLShader::SetVector3f(const char* uniform, const glm::vec3& vector) {
     glUniform3f(glGetUniformLocation(this->ID, uniform), vector.x, vector.y, vector.z);
 }
 
-void GLShader::SetFloat(const char* uniform, const float value) {
+void GLShader::SetFloat( const char* uniform, const float value ) {
     if (!this->m_isActive) { 
         std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
 
@@ -105,12 +105,12 @@ std::string get_shader_code(const char* shaderFile) {
 }
 
 
-void GLShader::CompilationErrors(unsigned int ShaderID, const char* shaderCompilationType) {
+void GLShader::CompilationErrors( unsigned int ShaderID, const char* shaderCompilationType ) {
     GLint hasCompiled;
     size_t infoLogBufSize = 512;
     char infoLog[infoLogBufSize];
 
-    if (shaderCompilationType == "PROGRAM") {
+    if (shaderCompilationType == (const char*)"PROGRAM") {
         glGetShaderiv(ShaderID, GL_COMPILE_STATUS, &hasCompiled);
 
         if (hasCompiled == GL_FALSE) {

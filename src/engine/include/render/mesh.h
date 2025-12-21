@@ -1,8 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
-#define DEFAULT_VERT_SHADER "src/Engine/Graphics/Shaders/VShaders/default.vert"
-#define DEFAULT_FRAG_SHADER "src/Engine/Graphics/Shaders/FShaders/default.frag"
+#define DEFAULT_VERT_SHADER "src/game/data/shaders/VShaders/default.vert"
+#define DEFAULT_FRAG_SHADER "src/game/data/shaders/FShaders/default.frag"
 
 #include <map>
 #include <unordered_map>

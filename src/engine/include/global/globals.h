@@ -63,13 +63,15 @@ namespace Engine {
     namespace log {
         template<typename ...Args>
         inline void print( const std::string& header, const auto& message, const Args& ...args ) {
-            std::cout << header << message;
+            std::cout << header << message << " ";
 
             if (sizeof...(args) > 0) {
                 std::cout << " ( ";
                 ((std::cout << args << " "), ...);
 
                 std::cout << ")" << std::endl;
+            } else {
+                std::cout << std::endl;
             }
         }
     }

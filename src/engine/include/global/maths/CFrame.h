@@ -8,12 +8,12 @@
 class CFrame {
     public:
         CFrame();
-        CFrame(float x, float y, float z);
-        CFrame(glm::vec3 pos);
-        CFrame(glm::mat4 baseMatrix);
+        CFrame( float x, float y, float z );
+        CFrame( glm::vec3 pos );
+        CFrame( glm::mat4 m4_baseMatrix );
 
-        CFrame toWorldSpace(CFrame localOffsetCFrame);
-        CFrame toObjectSpace(CFrame newOriginBase);
+        CFrame toWorldSpace( CFrame cf_localOffsetCFrame );
+        CFrame toObjectSpace( CFrame cf_newOriginBase );
 
         glm::vec3 get_LookVector();
         glm::vec3 get_RightVector();

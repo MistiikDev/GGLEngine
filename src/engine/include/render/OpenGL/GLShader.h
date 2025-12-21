@@ -26,14 +26,14 @@ class GLShader
 {
     public:
         GLuint ID;
-        GLShader(const char* vertexShader, const char* fragmentShader);
+        GLShader( const char* vertexShader, const char* fragmentShader );
 
-        void SetFloat(const char* uniform, const float value);
-        void SetMatrix4f(const char* uniform, const glm::mat4& matrix);
-        void SetVector3f(const char* uniform, const glm::vec3& vector);
-        void SetVector3f(const char* uniform, const Vector3& vector);
+        void SetFloat( const char* uniform, const float value );
+        void SetMatrix4f( const char* uniform, const glm::mat4& matrix );
+        void SetVector3f( const char* uniform, const glm::vec3& vector );
+        void SetVector3f( const char* uniform, const Vector3& vector );
         
-        void CompilationErrors(unsigned int ShaderID, const char* shaderCompilationType);
+        void CompilationErrors( unsigned int ShaderID, const char* shaderCompilationType );
 
         void Activate();
         void Destroy();

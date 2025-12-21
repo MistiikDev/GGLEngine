@@ -35,7 +35,7 @@ Mesh::Mesh(GLShader* shader, std::vector<Vertex>& in_verticies, std::vector<uint
     m_modelIndexBuffer.Unbind();
 
     // 
-    glm::vec3 objectPosition = glm::vec3(1.0f);
+    glm::vec3 objectPosition = glm::vec3(0.0f);
     glm::mat4 objectTransform = glm::mat4(1.0f);
 
     objectTransform = glm::translate(objectTransform, objectPosition);
@@ -55,27 +55,12 @@ void Mesh::Draw(Camera& m_CurrentCamera) {
     m_modelVertexArray.Bind();
     m_modelIndexBuffer.Bind();
 
-    // Instead of rendering the whole batch of verticies, render them per submesh groups, and color them accordingly
-    //for (auto& submesh : sub_meshes) {
-    //    if (submesh.materialName.empty()) {
-    //        std::cerr << "[Render] Submesh without material\n";
-    //        continue;
-    //    }
+    m_shader->SetVector3f("material.ambiant", Vector3(1.0f));
+    m_shader->SetVector3f("material.diffuse", Vector3(0.54f));
+    m_shader->SetVector3f("material.specular", Vector3(0.5f));
+    m_shader->SetFloat("material.shininess", 96.07f);
 
-    //    Material mat = name_to_mat[submesh.materialName];
-        
-    //    m_shader->Activate();
-
-    //    m_shader->SetVector3f("material.ambiant", mat.ambiantColor);
-    //    m_shader->SetVector3f("material.diffuse", mat.diffuseColor);
-    //    m_shader->SetVector3f("material.specular", mat.specularColor);
-    //    m_shader->SetFloat("material.shininess", mat.specular_factor);
-
-    //    glDrawElements(GL_TRIANGLES, submesh.indiciesCount, GL_UNSIGNED_INT, (void*)(submesh.indiciesOffset * sizeof(uint32_t)));
-    //}
-
-    glDrawElements(GL_TRIANGLES, this->indicies.size(), GL_UNSIGNED_INT, 0);
-
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indicies.size()), GL_UNSIGNED_INT, nullptr);
     m_modelVertexArray.Unbind();
     m_modelIndexBuffer.Unbind();
 }

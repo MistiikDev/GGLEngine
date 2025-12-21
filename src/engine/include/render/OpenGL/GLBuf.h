@@ -19,37 +19,43 @@ struct GLBuf {
     GLBuf();
 
     template<typename T>
-    void BufferData(T& bufData, unsigned int size = 0) {
+    void BufferData( T& bufData, unsigned int size = 0 ) {
         const void* ptr_data;
 
-        if constexpr (std::is_same_v<T, std::vector<Vertex>>) {
+        if constexpr ( std::is_same_v<T, std::vector<Vertex>> ) {
             this->bufType = GL_ARRAY_BUFFER;
             this->bufbyteSize = sizeof(Vertex) * bufData.size();
 
             ptr_data = bufData.data();
         
-        } else if constexpr (std::is_same_v<T, std::vector<ui32>>) {
+        } 
+        
+        else if constexpr ( std::is_same_v<T, std::vector<ui32>> ) {
             this->bufType = GL_ELEMENT_ARRAY_BUFFER;
             this->bufbyteSize = sizeof(ui32) * bufData.size();
 
             ptr_data = bufData.data();
 
-        } else if constexpr (std::is_same_v<T, float*> || std::is_same_v<T, unsigned int*>) {
+        } 
+        
+        else if constexpr ( std::is_same_v<T, float*> || std::is_same_v<T, unsigned int*> ) {
             this->bufType = (std::is_same_v<T, unsigned int*>) ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
             this->bufbyteSize = size;
 
             ptr_data = bufData;
-        } else {
+        } 
+        
+        else {
             Engine::log::print("[OPENGL BUFF] :",  "Tried creating Buffer with unsupported DataType!");
             throw EXIT_FAILURE;
         }
 
-        glGenBuffers(1, &this->ID);
+        glGenBuffers( 1, &this->ID );
 
-        glBindBuffer(bufType, this->ID);
-        glBufferData(bufType, bufbyteSize, ptr_data, GL_STATIC_DRAW);
+        glBindBuffer( bufType, this->ID );
+        glBufferData( bufType, bufbyteSize, ptr_data, GL_STATIC_DRAW );
 
-        glBindBuffer(bufType, 0);
+        glBindBuffer( bufType, 0 );
 
         this->b_isEmpty = false;
     }

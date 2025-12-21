@@ -20,6 +20,12 @@
 #include <render/mesh.h>
 #include <render/vertex.h>
 
+typedef struct {
+    int vPos;
+    int vTex;
+    int vNorm;
+} Face;
+
 struct OBJ_Data {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indicies;
@@ -31,11 +37,11 @@ struct MTL_Data {
 
 class OBJImport {
     public:
-        static void _loadOBJ(const char* fileDirectory, OBJ_Data* obj_data, MTL_Data* mtl_data);
+        static void _loadOBJ( const char* fileDirectory, OBJ_Data* obj_data, MTL_Data* mtl_data );
 
     private:
-        static void _readOBJ(const char* objName, OBJ_Data* obj_data, MTL_Data* materials);
-        static void _readMTL(const char* mtlName, MTL_Data* materials);
+        static void _readOBJ( const char* objName, OBJ_Data* obj_data, MTL_Data* materials );
+        static void _readMTL( const char* mtlName, MTL_Data* materials );
 };
 
 #endif

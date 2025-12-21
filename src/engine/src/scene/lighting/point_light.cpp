@@ -1,7 +1,7 @@
 #include <scene/lighting/point_light.h>
 
-const char* LIGHT_FRAG_SHADER = "src/Engine/Graphics/Shaders/FShaders/light.frag";
-const char* LIGHT_VERT_SHADER = "src/Engine/Graphics/Shaders/VShaders/light.vert";
+const char* LIGHT_FRAG_SHADER = "src/game/data/shaders/FShaders/light.frag";
+const char* LIGHT_VERT_SHADER = "src/game/data/shaders/VShaders/light.vert";
 
 PointLight::PointLight(glm::vec3 position):
     lightColor(1.0f),                                   

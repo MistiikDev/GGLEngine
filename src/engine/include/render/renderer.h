@@ -21,10 +21,10 @@
 class G_window;
 class G_renderer {
     public: 
-        G_renderer(G_window* m_window, unsigned int ScreenWidth, unsigned int ScreenHeight);
-
         PointLight m_sceneLight;
         Camera m_currentCamera;
+        
+        G_renderer( G_window* m_window, unsigned int ScreenWidth, unsigned int ScreenHeight );
 
         void Render();
         void Destroy();

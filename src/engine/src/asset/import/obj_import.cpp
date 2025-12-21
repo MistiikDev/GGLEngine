@@ -1,5 +1,40 @@
 #include <asset/import/obj_import.h>
 
+void __read_vertex(std::vector<Face>& faces, std::string& triplet) { // triplet : vp/vt/vn
+    int vp = 0, vt = 0, vn = 0;
+    int iseparatorCount = std::count(triplet.begin(), triplet.end(), '/');
+
+    if (triplet.find("//") != std::string::npos)
+    {
+        sscanf(triplet.c_str(), "%d//%d", &vp, &vn);
+    }
+
+    else if (iseparatorCount == 1)
+    {
+        sscanf(triplet.c_str(), "%d/%d", &vp, &vt);
+    }
+
+    else if (iseparatorCount == 2)
+    {
+        sscanf(triplet.c_str(), "%d/%d/%d", &vp, &vt, &vn);
+    }
+
+    Face f = {};
+    f.vPos = vp;
+    f.vTex = vt;
+    f.vNorm = vn;
+
+    faces.push_back(f);
+}
+
+// Triangulates indicies from temp to target
+void __triangulate_indicies(std::vector<ui32>& temp_indicies, std::vector<ui32>& target_indicies) {
+    for (int i = 1; i < (int)temp_indicies.size() - 1; i++) {
+        target_indicies.push_back(temp_indicies.at(0));
+        target_indicies.push_back(temp_indicies.at(i));
+        target_indicies.push_back(temp_indicies.at(i + 1));
+    }
+}
 
 void OBJImport::_loadOBJ( const char* fileDirectory, OBJ_Data* obj_data, MTL_Data* mtl_data ) {
     std::string objLocation = std::string(fileDirectory) + OBJ_EXTENSION;
@@ -15,9 +50,12 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
     std::vector<Vector2> texUV;
 
     std::vector<Vertex> verticies;
-    std::vector<uint32_t> indicies;
+    std::vector<ui32> indicies;
 
     std::vector<Vertex> temp_verticies;
+    std::vector<ui32> temp_indicies;
+
+    std::unordered_map<Vertex, ui32, VertexHash> hash_vtoi;
 
     Engine::file::parse( objFile, ERR_MODEL, [&]( std::stringstream& ss, std::string& line ) {
         std::string keyword;
@@ -26,7 +64,7 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
         Vector3 vec3;
         Vector2 vec2;
 
-        std::vector<Vector3> face; // f x/y/z x/y/z x/y/z ...
+        std::vector<Face> faces;
 
         if (keyword == "v" || keyword == "vn") {
             ss >> vec3.x >> vec3.y >> vec3.z;
@@ -38,31 +76,19 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
             texUV.emplace_back(vec2);
         } else if (keyword == "f") {
             temp_verticies.clear();
+            temp_indicies.clear();
+            faces.clear();
+
             std::string triplet;
 
             while (ss >> triplet) {
-                int vp = 0, vt = 0, vn = 0;
-                int iseparatorCount = std::count(triplet.begin(), triplet.end(), '/');
-
-                if (triplet.find("//") != std::string::npos) {
-                    sscanf(triplet.c_str(), "%d//%d", &vp, &vn);
-                }
-                
-                else if (iseparatorCount == 1) {
-                    sscanf(triplet.c_str(), "%d/%d", &vp, &vt);
-                } 
-                
-                else if (iseparatorCount == 2) {
-                    sscanf(triplet.c_str(), "%d/%d/%d", &vp, &vt, &vn);
-                }
-                
-                face.emplace_back(vp, vt, vn);
+                __read_vertex(faces, triplet); // Reads triplet data into faces as readable integers
             }
 
-            for (Vector3& vertexData : face) {
-                Vector3 vPos = (vertexData.x != 0 ? positions[vertexData.x - 1] : Vector3());
-                Vector2 vTex = (vertexData.y != 0 ? texUV[vertexData.y - 1] : Vector2());
-                Vector3 vNorm = (vertexData.z != 0 ? normals[vertexData.z - 1] : Vector3());
+            for (Face& vertexData : faces) {
+                Vector3 vPos = (vertexData.vPos != 0 ? positions.at(vertexData.vPos - 1) : Vector3(0.0f));
+                Vector2 vTex = (vertexData.vTex != 0 ? texUV.at(vertexData.vTex - 1) : Vector2(0.0f));
+                Vector3 vNorm = (vertexData.vNorm != 0 ? normals.at(vertexData.vNorm - 1) : Vector3(0.0f));
 
                 Vertex v;
                 v.Position = vPos;
@@ -70,27 +96,20 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
                 v.Normal = vNorm;
                 v.Color = Vector3(1.0f);
 
-                temp_verticies.push_back(v);
-            }
-
-            if (temp_verticies.size() >= 3) {
-                Vertex v0 = temp_verticies[0];
-
-                for (int i = 1; i < (int)temp_verticies.size() - 1; i++) {
-                    Vertex v_i = temp_verticies[i];
-                    Vertex v_i_next = temp_verticies[i+1];
-
-                    indicies.push_back(0);
-                    indicies.push_back(i);
-                    indicies.push_back(i + 1);
-
-                    verticies.push_back(v0);
-                    verticies.push_back(v_i);
-                    verticies.push_back(v_i_next);
+                if ( std::find( verticies.begin(), verticies.end(), v ) == verticies.end() ) {
+                    hash_vtoi[v] = verticies.size();
+                    verticies.push_back(v);
                 }
+
+                temp_indicies.push_back( hash_vtoi[v] );
             }
+
+            __triangulate_indicies(temp_indicies, indicies);
         }
     });
+
+    obj_data->vertices = verticies;
+    obj_data->indicies = indicies;
 }
 
 

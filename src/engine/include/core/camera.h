@@ -24,7 +24,7 @@ class Camera {
         float CameraSpeed, CameraSensitivity;
         float FieldOfView = 45.0f;
 
-        Camera(int Width, int Height, glm::vec3 position);
+        Camera( int Width, int Height, glm::vec3 position );
 
         void MatrixRender( GLShader& shader, const char* uniform );
         void ComputeMatrix( float nearClip, float farClip, float FieldOfView );
