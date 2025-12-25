@@ -49,6 +49,7 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
     std::vector<Vector3> normals;
     std::vector<Vector2> texUV;
 
+    // Verticies Registering
     std::vector<Vertex> verticies;
     std::vector<ui32> indicies;
 
@@ -56,6 +57,12 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
     std::vector<ui32> temp_indicies;
 
     std::unordered_map<Vertex, ui32, VertexHash> hash_vtoi;
+
+    // Material Registering
+    std::unordered_map<std::string, std::vector<UI32_Range>> hash_matToIndex;
+
+    std::string temp_material_name;
+    ui32 temp_start_index;
 
     Engine::file::parse( objFile, ERR_MODEL, [&]( std::stringstream& ss, std::string& line ) {
         std::string keyword;
@@ -105,14 +112,90 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
             }
 
             __triangulate_indicies(temp_indicies, indicies);
+        } else if (keyword == "usemtl") {
+            std::string matName;
+            ss >> matName;
+
+            if (!(temp_material_name.empty())) {
+                UI32_Range range;
+                range.start = temp_start_index;
+                range.end = indicies.size();
+                range.length = range.end - range.start;
+
+                hash_matToIndex[temp_material_name].push_back(range);
+            }
+
+            temp_material_name = matName;
+            temp_start_index = indicies.size();
         }
     });
 
     obj_data->vertices = verticies;
     obj_data->indicies = indicies;
+
+    Engine::log::print("[OBJ IMPORTER] ", "-> Imported ", verticies.size(), " verticies");
+    Engine::log::print("[OBJ IMPORTER] ", "-> Registered ", indicies.size(), " indices");
+
+    material_data->matToRange = std::move(hash_matToIndex);
 }
 
 
 void OBJImport::_readMTL( const char* mtlFile, MTL_Data* _mtl_Data ) {
-    
+    std::unordered_map<std::string, Material> nameToMat;
+
+    Material temp_material;
+    temp_material.name = "";
+
+    Engine::file::parse( mtlFile, ERR_MODEL, [&]( std::stringstream& ss, std::string& line ) {
+        std::string keyword;
+        ss >> keyword;
+
+        if (keyword == "newmtl") {
+            if (!temp_material.name.empty()) {
+                nameToMat[temp_material.name] = temp_material;
+                temp_material.name = "";
+            }
+
+            std::string matName;
+            ss >> matName;
+
+            temp_material = Material {};
+            temp_material.name = matName;
+
+        } else if (keyword == "Ns") {
+            float specular;
+            ss >> specular;
+
+            temp_material.specular_factor = specular;
+        } else if (keyword == "Ka") {
+            float ax, ay, az;
+            ss >> ax >> ay >> az;
+
+            temp_material.ambiantColor = Vector3(ax, ay, az);
+        } else if (keyword == "Kd") {
+            float dx, dy, dz;
+            ss >> dx >> dy >> dz;
+
+            temp_material.diffuseColor = Vector3(dx, dy, dz);
+        } else if (keyword == "Ks") {
+            float sx, sy, sz;
+            ss >> sx >> sy >> sz;
+
+            temp_material.specularColor = Vector3(sx, sy, sz);
+        } else if (keyword == "map_Kd") {
+            std::string diffuse_tex_loc;
+            ss >> diffuse_tex_loc;
+
+            temp_material.diffuse_texture = diffuse_tex_loc;
+        } else if (keyword == "map_Ks") {
+            std::string specular_tex_loc;
+            ss >> specular_tex_loc;
+
+            temp_material.diffuse_texture = specular_tex_loc;
+        }
+    });
+
+    Engine::log::print("[OBJ IMPORTER] ", "-> Registered ", nameToMat.size(), " materials");
+
+    _mtl_Data->nameToMat = std::move(nameToMat);
 }

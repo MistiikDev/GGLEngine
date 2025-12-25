@@ -8,7 +8,16 @@ using string = std::string;
 
 typedef struct {
     string name;
-    ui16 texture_id;
+
+    string diffuse_texture;
+    string specular_texture;
+    string ambiant_texture;
+    string alpha_texture;
+
+    string normal_texture;
+
+    GLuint texture_id;
+    GLuint index_offset;
 
     Vector3 ambiantColor;
     Vector3 diffuseColor;

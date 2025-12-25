@@ -32,7 +32,11 @@ struct OBJ_Data {
 };
 
 struct MTL_Data {
-    std::vector<Material> materials;
+    size_t tex_count;
+    size_t mat_count;
+
+    std::unordered_map<std::string, Material> nameToMat;
+    std::unordered_map<std::string, std::vector<UI32_Range>> matToRange;
 };
 
 class OBJImport {

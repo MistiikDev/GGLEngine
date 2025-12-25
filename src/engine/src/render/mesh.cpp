@@ -1,17 +1,16 @@
 #include <render/mesh.h>
+#include <asset/import/obj_import.h>
 
-Mesh::Mesh(GLShader* shader, std::vector<Vertex>& in_verticies, std::vector<uint32_t>& in_indicies, std::vector<Material>& meshMaterials)
+Mesh::Mesh(GLShader* shader, OBJ_Data* obj_data, MTL_Data* mtl_data)
     : m_shader(shader)
 {
-    verticies = std::move(in_verticies);
-    indicies = std::move(in_indicies);
-    materials = std::move(meshMaterials);
+    // Get ownership of important data
+    verticies = std::move(obj_data->vertices);
+    indicies = std::move(obj_data->indicies);
+    material_range = std::move(mtl_data->matToRange);
+    material_hash = std::move(mtl_data->nameToMat);
+    //
 
-    //for (auto& m : materials) {
-    //    if (!name_to_mat.count(m.name)) {
-    //        name_to_mat[m.name] = m;
-    //    }
-    //} // Setup material hash map
 
     m_modelVertexArray = GLArray { };
     m_modelBuffer = GLBuf { };
@@ -43,7 +42,6 @@ Mesh::Mesh(GLShader* shader, std::vector<Vertex>& in_verticies, std::vector<uint
 
     m_shader->Activate();
     m_shader->SetMatrix4f("vertexTransform", objectTransform);
-
 }
 
 void Mesh::Draw(Camera& m_CurrentCamera) {
@@ -55,12 +53,24 @@ void Mesh::Draw(Camera& m_CurrentCamera) {
     m_modelVertexArray.Bind();
     m_modelIndexBuffer.Bind();
 
-    m_shader->SetVector3f("material.ambiant", Vector3(1.0f));
-    m_shader->SetVector3f("material.diffuse", Vector3(0.54f));
-    m_shader->SetVector3f("material.specular", Vector3(0.5f));
-    m_shader->SetFloat("material.shininess", 96.07f);
+    for (auto const& kv : material_range) {
+        std::string matName = kv.first; 
+        std::vector<UI32_Range> matRanges = kv.second;
 
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indicies.size()), GL_UNSIGNED_INT, nullptr);
+        const Material& mat = material_hash[matName];
+
+        for (UI32_Range& range : matRanges) {
+            m_shader->SetVector3f("material.ambiant", mat.ambiantColor);
+            m_shader->SetVector3f("material.diffuse", mat.diffuseColor);
+            m_shader->SetVector3f("material.specular", mat.specularColor);
+            m_shader->SetFloat("material.shininess", mat.specular_factor);
+
+            void* offset = (void*)(uintptr_t)(range.start * sizeof(unsigned int));
+
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(range.end - range.start), GL_UNSIGNED_INT, offset);
+        }
+    }
+
     m_modelVertexArray.Unbind();
     m_modelIndexBuffer.Unbind();
 }

@@ -17,6 +17,13 @@
 typedef uint32_t ui32;
 typedef uint16_t ui16;
 
+typedef struct {
+    ui32 start;
+    ui32 end;
+
+    ui32 length;
+} UI32_Range;
+
 namespace Engine {
     namespace file {
         inline void parse( const char* filePath, const char* errMsg, auto&& handler ) {
@@ -66,13 +73,10 @@ namespace Engine {
             std::cout << header << message << " ";
 
             if (sizeof...(args) > 0) {
-                std::cout << " ( ";
                 ((std::cout << args << " "), ...);
-
-                std::cout << ")" << std::endl;
-            } else {
-                std::cout << std::endl;
             }
+
+            std::cout << std::endl;
         }
     }
 

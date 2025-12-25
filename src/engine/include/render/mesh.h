@@ -1,6 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+#pragma once
+
 #define DEFAULT_VERT_SHADER "src/game/data/shaders/VShaders/default.vert"
 #define DEFAULT_FRAG_SHADER "src/game/data/shaders/FShaders/default.frag"
 
@@ -19,21 +21,23 @@
 
 #include <global/globals.h>
 
+class OBJ_Data;
+class MTL_Data;
+
 class Mesh {
     public:
         glm::vec3 position;
 
         std::vector<Vertex> verticies;
         std::vector<uint32_t> indicies;
-        std::vector<Material> materials;
 
-        std::unordered_map< std::string, Material > name_to_mat;
+        std::unordered_map<std::string, Material> material_hash;
+        std::unordered_map<std::string, std::vector<UI32_Range>> material_range;
 
         Mesh( GLShader* shader, 
-            std::vector<Vertex>& in_verticies, 
-            std::vector<ui32>& in_indicies, 
-            std::vector<Material>& meshMaterials 
-        );
+            OBJ_Data* obj_data,
+            MTL_Data* mtl_data
+        ); // Mesh from OBJ overload
         
         void Draw( Camera& currentCamera );
     private:
@@ -43,5 +47,6 @@ class Mesh {
 
         GLShader* m_shader;
 };
+
 #endif
 

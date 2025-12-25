@@ -13,7 +13,7 @@ Texture::Texture(const char* texturePath, GLuint slot, GLenum textureType, GLenu
 
     glGenTextures(1, &this->TextureId);
     glActiveTexture(slot);
-    glBindTexture(textureType, this->TextureId); // Create TExture object in opengl and bind current id to it
+    glBindTexture(textureType, this->TextureId); // Create Texture object in opengl and bind current id to it
 
     glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, textureScaleType);
     glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, textureScaleType);

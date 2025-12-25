@@ -8,7 +8,7 @@
 const glm::vec3 camera_origin = glm::vec3(0.0f, 0.0f, 2.0f);
 
 G_renderer::G_renderer( G_window* window, unsigned int ScreenWidth, unsigned int ScreenHeight )
-    : m_sceneLight( glm::vec3(0.5f, 2.5f, 0.5f) ),
+    : m_sceneLight( glm::vec3(500000000.0f, 500000000.0f, 500000000.0f) ),
       m_currentCamera( ScreenWidth, ScreenHeight, camera_origin ),
       m_window( window )
 {
@@ -19,12 +19,10 @@ G_renderer::G_renderer( G_window* window, unsigned int ScreenWidth, unsigned int
     MTL_Data mtl_data;
     
     OBJImport::_loadOBJ( "src/game/data/models/Cop", &obj_data, &mtl_data );
-
     m_mesh = new Mesh(
         default_shader,
-        obj_data.vertices,
-        obj_data.indicies,
-        mtl_data.materials
+        &obj_data,
+        &mtl_data
     );
 }
 

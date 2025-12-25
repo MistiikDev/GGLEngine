@@ -33,7 +33,7 @@ G_window::G_window( const char* WindowTitle, unsigned int ScreenWidth, unsigned 
         return;
     }
 
-    Engine::log::print("[GLFW DEBUG] : ", "WINDOW OK", m_glfwWindow);
+    Engine::log::print("[GLFW DEBUG] : ", "WINDOW OK", " ( ", m_glfwWindow, " )");
 
     glfwMakeContextCurrent(m_glfwWindow);
 
