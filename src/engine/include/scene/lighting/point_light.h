@@ -6,12 +6,14 @@
 
 class PointLight {
     public: 
-        glm::vec3 lightColor;
+        Vector3 lightPosition;
+        Vector3 lightColor;
+
         CFrame lightCFrame;
 
         PointLight();
-        PointLight(glm::vec3 position);
-        PointLight(glm::vec3 position, glm::vec3 color);
+        PointLight(Vector3 position);
+        PointLight(Vector3 position, Vector3 color);
 
         void Render();
         void Destroy();

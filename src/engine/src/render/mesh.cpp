@@ -1,23 +1,36 @@
 #include <render/mesh.h>
-#include <asset/import/obj_import.h>
 
-Mesh::Mesh(GLShader* shader, OBJ_Data* obj_data, MTL_Data* mtl_data)
+Mesh::Mesh(GLShader* shader, Mesh_Data& obj_data, Material_Data& mtl_data)
     : m_shader(shader)
 {
     // Get ownership of important data
-    verticies = std::move(obj_data->vertices);
-    indicies = std::move(obj_data->indicies);
-    material_range = std::move(mtl_data->matToRange);
-    material_hash = std::move(mtl_data->nameToMat);
-    //
+    mesh_data = obj_data;
+    material_data = mtl_data;
 
+    for (auto const& submesh : mesh_data.sub_meshes) {
+        Material* material = submesh.material;
+
+        m_shader->Activate();
+
+        if (material == nullptr) {
+            material = DefaultAssets::debug_material;
+        }
+
+        if (material->diffuseTex == nullptr) {
+            material->diffuseTex = DefaultAssets::white_texture;
+        }
+        
+        if (material->specularTex == nullptr) {
+            material->specularTex = DefaultAssets::white_texture;
+        }
+    }
 
     m_modelVertexArray = GLArray { };
     m_modelBuffer = GLBuf { };
     m_modelIndexBuffer = GLBuf { };
 
-    m_modelBuffer.BufferData(verticies);
-    m_modelIndexBuffer.BufferData(indicies);
+    m_modelBuffer.BufferData(mesh_data.vertices);
+    m_modelIndexBuffer.BufferData(mesh_data.indicies);
 
     m_modelVertexArray.Bind();
     m_modelBuffer.Bind();
@@ -53,22 +66,25 @@ void Mesh::Draw(Camera& m_CurrentCamera) {
     m_modelVertexArray.Bind();
     m_modelIndexBuffer.Bind();
 
-    for (auto const& kv : material_range) {
-        std::string matName = kv.first; 
-        std::vector<UI32_Range> matRanges = kv.second;
+    for (auto const& submesh : mesh_data.sub_meshes) {
+        const Material* material = submesh.material;
 
-        const Material& mat = material_hash[matName];
+        m_shader->Activate();
 
-        for (UI32_Range& range : matRanges) {
-            m_shader->SetVector3f("material.ambiant", mat.ambiantColor);
-            m_shader->SetVector3f("material.diffuse", mat.diffuseColor);
-            m_shader->SetVector3f("material.specular", mat.specularColor);
-            m_shader->SetFloat("material.shininess", mat.specular_factor);
+        material->diffuseTex->Bind(0);
+        material->specularTex->Bind(1);
 
-            void* offset = (void*)(uintptr_t)(range.start * sizeof(unsigned int));
+        m_shader->SetInt("diffuseMap", 0);
+        m_shader->SetInt("specularMap", 1);
 
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(range.end - range.start), GL_UNSIGNED_INT, offset);
-        }
+        m_shader->SetFloat("material.shininess", material->specular_factor);
+        m_shader->SetVector3f("material.ambient", material->ambiantColor);
+        m_shader->SetVector3f("material.diffuse", material->diffuseColor);
+        m_shader->SetVector3f("material.specular", material->specularColor);
+
+        void* offset = (void*)(uintptr_t)(submesh.indexOffset * sizeof(uint32_t));
+
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(submesh.indexCount), GL_UNSIGNED_INT, offset);
     }
 
     m_modelVertexArray.Unbind();

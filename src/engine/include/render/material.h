@@ -1,30 +1,40 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include <memory>
+
+#include <render/OpenGL/GLTex.h>
 #include <global/globals.h>
 #include <global/maths/Vector3.h>
 
-using string = std::string;
+struct Material {
 
-typedef struct {
-    string name;
+    Material(  ) = default;
 
-    string diffuse_texture;
-    string specular_texture;
-    string ambiant_texture;
-    string alpha_texture;
+    float specular_factor = 32.0f;
 
-    string normal_texture;
+    Vector3 ambiantColor = Vector3(1.0f);
+    Vector3 diffuseColor = Vector3(1.0f);
+    Vector3 specularColor = Vector3(1.0f);
+    Vector3 emissiveColor = Vector3(0.0f);
 
-    GLuint texture_id;
-    GLuint index_offset;
+    std::shared_ptr<GLTex> diffuseTex;
+    std::shared_ptr<GLTex> specularTex;
 
-    Vector3 ambiantColor;
-    Vector3 diffuseColor;
-    Vector3 specularColor;
-    Vector3 emissiveColor;
+    Material& SetDiffuse( const Vector3& v )  { diffuseColor = v; return *this; }
+    Material& SetSpecular( const Vector3& v ) { specularColor = v; return *this; }
+    Material& SetAmbient( const Vector3& v )  { ambiantColor = v; return *this; }
+    Material& SetShininess( float s )         { specular_factor = s; return *this; }
 
-    float specular_factor;
-} Material;
+    Material& SetDiffuseTex(const std::string& path) {
+        diffuseTex = std::make_shared<GLTex>(path.c_str());
+        return *this;
+    }
+
+    Material& SetSpecularTex(const std::string& path) {
+        specularTex = std::make_shared<GLTex>(path.c_str());
+        return *this;
+    }
+};
 
 #endif

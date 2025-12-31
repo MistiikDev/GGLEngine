@@ -9,6 +9,10 @@ CFrame::CFrame( float x, float y, float z ) {
     Position = glm::vec3(x, y, z);
 }
 
+CFrame::CFrame( Vector3 v3_pos ) {
+    Position = glm::vec3(v3_pos.x, v3_pos.y, v3_pos.z);
+}
+
 CFrame::CFrame( glm::vec3 v3_pos ) {
     Position = v3_pos;
 }

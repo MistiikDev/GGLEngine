@@ -28,7 +28,10 @@ class GLShader
         GLuint ID;
         GLShader( const char* vertexShader, const char* fragmentShader );
 
+        void SetInt( const char* uniform, const int value);
+        void SetBool( const char* uniform, const bool value);
         void SetFloat( const char* uniform, const float value );
+        
         void SetMatrix4f( const char* uniform, const glm::mat4& matrix );
         void SetVector3f( const char* uniform, const glm::vec3& vector );
         void SetVector3f( const char* uniform, const Vector3& vector );

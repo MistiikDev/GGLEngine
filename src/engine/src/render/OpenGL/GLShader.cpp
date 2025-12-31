@@ -79,6 +79,26 @@ void GLShader::SetFloat( const char* uniform, const float value ) {
     glUniform1f(glGetUniformLocation(this->ID, uniform), value);
 }
 
+void GLShader::SetInt( const char* uniform, const int value ) {
+    if (!this->m_isActive) { 
+        std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
+
+        throw;
+    }
+
+    glUniform1i(glGetUniformLocation(this->ID, uniform), value);
+}
+
+void GLShader::SetBool( const char* uniform, const bool value) {
+        if (!this->m_isActive) { 
+        std::cout << "SHADER_COMPILATION_ERR  : Tried accessing shader when not active!\n";
+
+        throw;
+    }
+
+    glUniform1i(glGetUniformLocation(this->ID, uniform), value ? 1 : 0);
+}
+
 void GLShader::Activate() {
     this->m_isActive = true;
 

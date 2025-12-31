@@ -20,32 +20,51 @@
 #include <render/mesh.h>
 #include <render/vertex.h>
 
-typedef struct {
+struct Face {
+
     int vPos;
     int vTex;
     int vNorm;
-} Face;
 
-struct OBJ_Data {
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indicies;
-};
+} ;
 
-struct MTL_Data {
-    size_t tex_count;
-    size_t mat_count;
+struct OBJ_Material {
 
-    std::unordered_map<std::string, Material> nameToMat;
-    std::unordered_map<std::string, std::vector<UI32_Range>> matToRange;
+    OBJ_Material() {
+        name = "";
+        
+        specular_factor = 1.0f;
+
+        ambiantColor = Vector3(1.0f, 0.0f, 0.0f);
+        diffuseColor = Vector3(1.0f, 0.0f, 0.0f);
+        specularColor = Vector3(1.0f, 0.0f, 0.0f);
+        emissiveColor = Vector3(1.0f, 0.0f, 0.0f);
+    }
+
+
+    
+    std::string name;
+
+    std::string diffuse_tex;
+    std::string specular_tex;
+    std::string normal_tex;
+
+    Vector3 ambiantColor;
+    Vector3 diffuseColor;
+    Vector3 specularColor;
+    Vector3 emissiveColor;
+
+    float specular_factor;
+
 };
 
 class OBJImport {
     public:
-        static void _loadOBJ( const char* fileDirectory, OBJ_Data* obj_data, MTL_Data* mtl_data );
+        static void _loadOBJ( const char* fileDirectory, Mesh_Data* obj_data, Material_Data* mtl_data );
 
     private:
-        static void _readOBJ( const char* objName, OBJ_Data* obj_data, MTL_Data* materials );
-        static void _readMTL( const char* mtlName, MTL_Data* materials );
+        static void _readOBJ( const char* objName, Mesh_Data* obj_data, Material_Data* materials );
+        static void _readMTL( const char* mtlName, Material_Data* materials );
 };
 
 #endif

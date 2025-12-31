@@ -3,12 +3,9 @@
 
 #pragma once
 
-#define DEFAULT_VERT_SHADER "src/game/data/shaders/VShaders/default.vert"
-#define DEFAULT_FRAG_SHADER "src/game/data/shaders/FShaders/default.frag"
-
-#include <map>
-#include <unordered_map>
-#include <vector>
+#include <asset/mesh_data.h>
+#include <asset/material_data.h>
+#include <asset/default_assets.h>
 
 #include <core/camera.h>
 
@@ -20,24 +17,14 @@
 #include <render/OpenGL/GLShader.h>
 
 #include <global/globals.h>
-
-class OBJ_Data;
-class MTL_Data;
+#include <global/maths/CFrame.h>
 
 class Mesh {
     public:
-        glm::vec3 position;
-
-        std::vector<Vertex> verticies;
-        std::vector<uint32_t> indicies;
-
-        std::unordered_map<std::string, Material> material_hash;
-        std::unordered_map<std::string, std::vector<UI32_Range>> material_range;
-
-        Mesh( GLShader* shader, 
-            OBJ_Data* obj_data,
-            MTL_Data* mtl_data
-        ); // Mesh from OBJ overload
+        Mesh_Data mesh_data;
+        Material_Data material_data;
+        
+        Mesh( GLShader* shader, Mesh_Data& mesh_data, Material_Data& material_data );
         
         void Draw( Camera& currentCamera );
     private:

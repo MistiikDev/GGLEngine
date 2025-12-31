@@ -1,29 +1,43 @@
 #include <render/renderer.h>
 #include <core/window.h>
 
+#define DEFAULT_VERT_SHADER "src/game/data/shaders/VShaders/default.vert"
+#define DEFAULT_FRAG_SHADER "src/game/data/shaders/FShaders/default.frag"
+
 #define CAMERA_FOV_DEGREES 45.0f
 #define CAMERA_NEAR_Z 0.1f
 #define CAMERA_FAR_Z 100.0f
 
-const glm::vec3 camera_origin = glm::vec3(0.0f, 0.0f, 2.0f);
-
 G_renderer::G_renderer( G_window* window, unsigned int ScreenWidth, unsigned int ScreenHeight )
-    : m_sceneLight( glm::vec3(500000000.0f, 500000000.0f, 500000000.0f) ),
+    : m_sceneLight( Vector3(-10.0, 10.0, 10.0) ),
       m_currentCamera( ScreenWidth, ScreenHeight, camera_origin ),
       m_window( window )
 {
-    GLShader* default_shader = new GLShader { DEFAULT_VERT_SHADER, DEFAULT_FRAG_SHADER };
+    // Init shader
+    DefaultAssets::Init();
+    SetActiveShader(DefaultAssets::default_shader);
 
-
-    OBJ_Data obj_data;
-    MTL_Data mtl_data;
+    Mesh_Data mesh_data;
+    Material_Data mtl_data;
     
-    OBJImport::_loadOBJ( "src/game/data/models/Cop", &obj_data, &mtl_data );
+    OBJImport::_loadOBJ( "src/game/data/models/Cop", &mesh_data, &mtl_data );
+
     m_mesh = new Mesh(
-        default_shader,
-        &obj_data,
-        &mtl_data
+        m_shader,
+        mesh_data,
+        mtl_data
     );
+}
+
+void G_renderer::SetActiveShader( GLShader* glshader ) {
+    if (glshader == nullptr) {
+        Engine::log::print("[RENDERER] : ",  "TRIED SETTING ACTIVE SHADER AS NULLPTR");
+
+        return;
+    }
+        
+
+    this->m_shader = glshader;
 }
 
 void G_renderer::Render() {

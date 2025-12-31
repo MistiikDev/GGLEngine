@@ -1,6 +1,8 @@
 #ifndef CFRAME_H
 #define CFRAME_H
 
+#include <global/maths/Vector3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,6 +11,8 @@ class CFrame {
     public:
         CFrame();
         CFrame( float x, float y, float z );
+        CFrame( Vector3 pos );
+
         CFrame( glm::vec3 pos );
         CFrame( glm::mat4 m4_baseMatrix );
 

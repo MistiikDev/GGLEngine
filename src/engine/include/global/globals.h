@@ -17,13 +17,6 @@
 typedef uint32_t ui32;
 typedef uint16_t ui16;
 
-typedef struct {
-    ui32 start;
-    ui32 end;
-
-    ui32 length;
-} UI32_Range;
-
 namespace Engine {
     namespace file {
         inline void parse( const char* filePath, const char* errMsg, auto&& handler ) {

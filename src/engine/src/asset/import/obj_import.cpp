@@ -28,7 +28,7 @@ void __read_vertex(std::vector<Face>& faces, std::string& triplet) { // triplet 
 }
 
 // Triangulates indicies from temp to target
-void __triangulate_indicies(std::vector<ui32>& temp_indicies, std::vector<ui32>& target_indicies) {
+void triangulate_poly(std::vector<ui32>& temp_indicies, std::vector<ui32>& target_indicies) {
     for (int i = 1; i < (int)temp_indicies.size() - 1; i++) {
         target_indicies.push_back(temp_indicies.at(0));
         target_indicies.push_back(temp_indicies.at(i));
@@ -36,7 +36,7 @@ void __triangulate_indicies(std::vector<ui32>& temp_indicies, std::vector<ui32>&
     }
 }
 
-void OBJImport::_loadOBJ( const char* fileDirectory, OBJ_Data* obj_data, MTL_Data* mtl_data ) {
+void OBJImport::_loadOBJ( const char* fileDirectory, Mesh_Data* obj_data, Material_Data* mtl_data ) {
     std::string objLocation = std::string(fileDirectory) + OBJ_EXTENSION;
     std::string mtlLocation = std::string(fileDirectory) + MTL_EXTENSION;
 
@@ -44,7 +44,7 @@ void OBJImport::_loadOBJ( const char* fileDirectory, OBJ_Data* obj_data, MTL_Dat
     OBJImport::_readOBJ(objLocation.c_str(), obj_data, mtl_data);
 }
 
-void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* material_data) {
+void OBJImport::_readOBJ(const char* objFile, Mesh_Data* obj_data, Material_Data* material_data) {
     std::vector<Vector3> positions;
     std::vector<Vector3> normals;
     std::vector<Vector2> texUV;
@@ -52,17 +52,14 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
     // Verticies Registering
     std::vector<Vertex> verticies;
     std::vector<ui32> indicies;
-
-    std::vector<Vertex> temp_verticies;
     std::vector<ui32> temp_indicies;
+    std::unordered_map<Vertex, ui32, VertexHash> vertex_to_index;
 
-    std::unordered_map<Vertex, ui32, VertexHash> hash_vtoi;
 
-    // Material Registering
-    std::unordered_map<std::string, std::vector<UI32_Range>> hash_matToIndex;
+    std::vector<SubMesh_Data> sub_meshes;
+    std::string currentMatName = "";
 
-    std::string temp_material_name;
-    ui32 temp_start_index;
+    uint32_t temp_start_index = 0;
 
     Engine::file::parse( objFile, ERR_MODEL, [&]( std::stringstream& ss, std::string& line ) {
         std::string keyword;
@@ -82,7 +79,6 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
 
             texUV.emplace_back(vec2);
         } else if (keyword == "f") {
-            temp_verticies.clear();
             temp_indicies.clear();
             faces.clear();
 
@@ -104,47 +100,60 @@ void OBJImport::_readOBJ(const char* objFile, OBJ_Data* obj_data, MTL_Data* mate
                 v.Color = Vector3(1.0f);
 
                 if ( std::find( verticies.begin(), verticies.end(), v ) == verticies.end() ) {
-                    hash_vtoi[v] = verticies.size();
+                    vertex_to_index[v] = verticies.size();
                     verticies.push_back(v);
                 }
 
-                temp_indicies.push_back( hash_vtoi[v] );
+                temp_indicies.push_back( vertex_to_index[v] );
             }
 
-            __triangulate_indicies(temp_indicies, indicies);
+            triangulate_poly(temp_indicies, indicies);
+
         } else if (keyword == "usemtl") {
             std::string matName;
             ss >> matName;
 
-            if (!(temp_material_name.empty())) {
-                UI32_Range range;
-                range.start = temp_start_index;
-                range.end = indicies.size();
-                range.length = range.end - range.start;
-
-                hash_matToIndex[temp_material_name].push_back(range);
+            if (!currentMatName.empty()) {
+                SubMesh_Data submesh = SubMesh_Data {};
+                
+                submesh.indexOffset = temp_start_index;
+                submesh.indexCount = indicies.size() - temp_start_index;
+                submesh.material = material_data->name_to_material[currentMatName];
+            
+                sub_meshes.push_back(submesh);
             }
-
-            temp_material_name = matName;
+            
+            currentMatName = matName;
             temp_start_index = indicies.size();
         }
     });
 
+    if (!currentMatName.empty()) {
+        SubMesh_Data submesh = SubMesh_Data {};
+                
+        submesh.indexOffset = temp_start_index;
+        submesh.indexCount = indicies.size() - temp_start_index;
+        submesh.material = material_data->name_to_material[currentMatName];
+            
+        sub_meshes.push_back(submesh);
+    }
+
     obj_data->vertices = verticies;
     obj_data->indicies = indicies;
+    obj_data->sub_meshes = sub_meshes;
 
     Engine::log::print("[OBJ IMPORTER] ", "-> Imported ", verticies.size(), " verticies");
     Engine::log::print("[OBJ IMPORTER] ", "-> Registered ", indicies.size(), " indices");
+    Engine::log::print("[OBJ IMPORTER] ", "-> Registered ", sub_meshes.size(), " submeshes");
 
-    material_data->matToRange = std::move(hash_matToIndex);
 }
 
 
-void OBJImport::_readMTL( const char* mtlFile, MTL_Data* _mtl_Data ) {
-    std::unordered_map<std::string, Material> nameToMat;
+void OBJImport::_readMTL( const char* mtlFile, Material_Data* _mtl_Data ) {
+    std::unordered_map<std::string, OBJ_Material> OBJ_material_parse;
+    std::unordered_map<std::string, Material*> name_to_material;
 
-    Material temp_material;
-    temp_material.name = "";
+    OBJ_Material temp_material {};
 
     Engine::file::parse( mtlFile, ERR_MODEL, [&]( std::stringstream& ss, std::string& line ) {
         std::string keyword;
@@ -152,14 +161,13 @@ void OBJImport::_readMTL( const char* mtlFile, MTL_Data* _mtl_Data ) {
 
         if (keyword == "newmtl") {
             if (!temp_material.name.empty()) {
-                nameToMat[temp_material.name] = temp_material;
-                temp_material.name = "";
+                OBJ_material_parse[temp_material.name] = temp_material;
             }
 
             std::string matName;
             ss >> matName;
 
-            temp_material = Material {};
+            temp_material = OBJ_Material {};
             temp_material.name = matName;
 
         } else if (keyword == "Ns") {
@@ -186,16 +194,48 @@ void OBJImport::_readMTL( const char* mtlFile, MTL_Data* _mtl_Data ) {
             std::string diffuse_tex_loc;
             ss >> diffuse_tex_loc;
 
-            temp_material.diffuse_texture = diffuse_tex_loc;
+            temp_material.diffuse_tex = diffuse_tex_loc;
         } else if (keyword == "map_Ks") {
             std::string specular_tex_loc;
             ss >> specular_tex_loc;
 
-            temp_material.diffuse_texture = specular_tex_loc;
+            temp_material.specular_tex = specular_tex_loc;
         }
     });
+    
+    if (!temp_material.name.empty()) {
+        OBJ_material_parse[temp_material.name] = temp_material;
+    }
 
-    Engine::log::print("[OBJ IMPORTER] ", "-> Registered ", nameToMat.size(), " materials");
+    for (const auto& kv : OBJ_material_parse) {
+        std::string material_name = kv.first;
+        OBJ_Material obj_mat = kv.second;
 
-    _mtl_Data->nameToMat = std::move(nameToMat);
+        Material* mat = new Material();
+        mat->specular_factor = obj_mat.specular_factor;
+        mat->ambiantColor = obj_mat.ambiantColor;
+        mat->diffuseColor = obj_mat.diffuseColor;
+        mat->specularColor = obj_mat.specularColor;
+        mat->emissiveColor = obj_mat.emissiveColor;
+
+        if (!obj_mat.diffuse_tex.empty()) {
+            std::cout << obj_mat.diffuse_tex << std::endl;
+            std::shared_ptr<GLTex> diffuse_tex = std::make_shared<GLTex>( obj_mat.diffuse_tex.c_str() );
+
+            mat->diffuseTex = std::move(diffuse_tex);
+        }
+
+        if (!obj_mat.specular_tex.empty()) {
+            std::cout << obj_mat.specular_tex << std::endl;
+            std::shared_ptr<GLTex> specular_tex = std::make_shared<GLTex>( obj_mat.specular_tex.c_str() );
+
+            mat->specularTex = std::move(specular_tex);
+        }
+
+        name_to_material[material_name] = mat;
+    }
+
+    Engine::log::print("[OBJ IMPORTER] ", "-> Loaded ", OBJ_material_parse.size(), " materials");
+
+    _mtl_Data->name_to_material = std::move(name_to_material);
 }
