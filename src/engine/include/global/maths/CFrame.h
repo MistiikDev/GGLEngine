@@ -19,6 +19,8 @@ class CFrame {
         CFrame toWorldSpace( CFrame cf_localOffsetCFrame );
         CFrame toObjectSpace( CFrame cf_newOriginBase );
 
+        static CFrame Angles( glm::vec3 rot );
+
         glm::vec3 get_LookVector();
         glm::vec3 get_RightVector();
         glm::vec3 get_Vector();
@@ -27,6 +29,11 @@ class CFrame {
 
         glm::vec3 Position;
         glm::quat Rotation;
+
+        CFrame operator+(const Vector3& rhs) const {
+            return Position + glm::vec3(rhs.x, rhs.y, rhs.z);
+        }
+
     private:
         glm::vec3 LookVector;
         glm::vec3 RightVector;

@@ -9,6 +9,8 @@ out vec2 textureCoordinates;
 out vec3 normal;
 out vec3 worldPosition;
 
+uniform vec3 light_position;
+
 uniform mat4 vertexTransform;
 uniform mat4 camera_matrix;
 

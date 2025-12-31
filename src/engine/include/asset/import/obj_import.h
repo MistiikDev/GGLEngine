@@ -19,6 +19,7 @@
 #include <global/globals.h>
 #include <render/mesh.h>
 #include <render/vertex.h>
+#include <render/texture_cache.h>
 
 struct Face {
 
@@ -41,8 +42,6 @@ struct OBJ_Material {
         emissiveColor = Vector3(1.0f, 0.0f, 0.0f);
     }
 
-
-    
     std::string name;
 
     std::string diffuse_tex;

@@ -7,6 +7,7 @@
 #define GLTEX_H
 
 #include <iostream>
+#include <memory>
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 #include <render/OpenGL/GLShader.h>

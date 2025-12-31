@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include <render/texture_cache.h>
 #include <render/material.h>
 #include <render/OpenGL/GLShader.h>
 #include <render/OpenGL/GLTex.h>
@@ -31,8 +32,8 @@ struct DefaultAssets {
         debug_material->SetSpecularTex( DEBUG_TEXTURE_PATH );
 
         // These textures are shared, thus not taking the latter option of retaking them
-        white_texture = std::make_shared<GLTex> ( WHITE_TEXTURE_PATH ) ;
-        debug_texture = std::make_shared<GLTex> ( DEBUG_TEXTURE_PATH ) ;
+        white_texture = TextureCache::GetTexture ( WHITE_TEXTURE_PATH ) ;
+        debug_texture = TextureCache::GetTexture ( DEBUG_TEXTURE_PATH ) ;
     }
 
     static void Destroy() {

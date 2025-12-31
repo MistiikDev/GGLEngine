@@ -10,6 +10,8 @@ PointLight::PointLight(Vector3 position):
     m_lightShader(LIGHT_VERT_SHADER, LIGHT_FRAG_SHADER)
 {
 
+    lightCFrame.Position = glm::vec3(position.x, position.y, position.z);
+
     m_lightShader.Activate();
     m_lightShader.SetMatrix4f("light_transform", lightCFrame.toMatrix());
     m_lightShader.SetVector3f("light_color", lightColor);

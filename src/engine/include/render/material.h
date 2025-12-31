@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <render/texture_cache.h>
 #include <render/OpenGL/GLTex.h>
 #include <global/globals.h>
 #include <global/maths/Vector3.h>
@@ -27,12 +28,12 @@ struct Material {
     Material& SetShininess( float s )         { specular_factor = s; return *this; }
 
     Material& SetDiffuseTex(const std::string& path) {
-        diffuseTex = std::make_shared<GLTex>(path.c_str());
+        diffuseTex = TextureCache::GetTexture( path.c_str() );
         return *this;
     }
 
     Material& SetSpecularTex(const std::string& path) {
-        specularTex = std::make_shared<GLTex>(path.c_str());
+        specularTex = TextureCache::GetTexture( path.c_str() );
         return *this;
     }
 };

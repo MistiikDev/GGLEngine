@@ -28,6 +28,15 @@ CFrame::CFrame( glm::mat4 m4_baseMatrix ) {
     Position = m4_baseMatrix[3];
 }
 
+CFrame CFrame::Angles( glm::vec3 rot ) {
+    CFrame rotated_cf;
+
+    rotated_cf.Position = glm::vec3(0.0f);
+    rotated_cf.Rotation = glm::quat(rot);
+
+    return rotated_cf;
+}
+
 glm::mat4 CFrame::toMatrix() {
     glm::mat4 m4_cframeMatrix = glm::mat4(1.0f);
 

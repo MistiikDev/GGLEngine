@@ -24,6 +24,8 @@ class Mesh {
         Mesh_Data mesh_data;
         Material_Data material_data;
         
+        CFrame cframe;
+
         Mesh( GLShader* shader, Mesh_Data& mesh_data, Material_Data& material_data );
         
         void Draw( Camera& currentCamera );

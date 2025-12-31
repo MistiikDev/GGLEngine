@@ -5,7 +5,7 @@ Camera::Camera(int Width, int Height, glm::vec3 position) {
     WIDTH = Width;
     HEIGHT = Height;
 
-    CameraSpeed = 0.01f;
+    CameraSpeed = 0.1f;
     CameraSensitivity = 35.0f;
 }
 

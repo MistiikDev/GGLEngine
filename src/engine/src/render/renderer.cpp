@@ -15,18 +15,21 @@ G_renderer::G_renderer( G_window* window, unsigned int ScreenWidth, unsigned int
 {
     // Init shader
     DefaultAssets::Init();
+    TextureCache::Init();
+
     SetActiveShader(DefaultAssets::default_shader);
 
     Mesh_Data mesh_data;
     Material_Data mtl_data;
     
-    OBJImport::_loadOBJ( "src/game/data/models/Cop", &mesh_data, &mtl_data );
+    OBJImport::_loadOBJ( "src/game/data/models/Yoshi", &mesh_data, &mtl_data );
 
     m_mesh = new Mesh(
         m_shader,
         mesh_data,
         mtl_data
     );
+    
 }
 
 void G_renderer::SetActiveShader( GLShader* glshader ) {
@@ -35,8 +38,7 @@ void G_renderer::SetActiveShader( GLShader* glshader ) {
 
         return;
     }
-        
-
+    
     this->m_shader = glshader;
 }
 
@@ -47,9 +49,9 @@ void G_renderer::Render() {
     m_currentCamera.ComputeMatrix( CAMERA_NEAR_Z, CAMERA_FAR_Z, CAMERA_FOV_DEGREES );
     m_currentCamera.Input( m_window->GetGLFWWindow() );
 
-
     m_sceneLight.Render();
     m_mesh->Draw( m_currentCamera );
+
     //
 
     glfwSwapBuffers( m_window->GetGLFWWindow() );

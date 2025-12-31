@@ -41,6 +41,7 @@ class G_renderer {
         GLShader* m_shader;
         
         Mesh* m_mesh;
+        Mesh* m_mesh2;
 };
 
 #endif

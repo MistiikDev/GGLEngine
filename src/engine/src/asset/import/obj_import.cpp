@@ -219,15 +219,13 @@ void OBJImport::_readMTL( const char* mtlFile, Material_Data* _mtl_Data ) {
         mat->emissiveColor = obj_mat.emissiveColor;
 
         if (!obj_mat.diffuse_tex.empty()) {
-            std::cout << obj_mat.diffuse_tex << std::endl;
-            std::shared_ptr<GLTex> diffuse_tex = std::make_shared<GLTex>( obj_mat.diffuse_tex.c_str() );
+            std::shared_ptr<GLTex> diffuse_tex = TextureCache::GetTexture( obj_mat.diffuse_tex.c_str() );
 
             mat->diffuseTex = std::move(diffuse_tex);
         }
 
         if (!obj_mat.specular_tex.empty()) {
-            std::cout << obj_mat.specular_tex << std::endl;
-            std::shared_ptr<GLTex> specular_tex = std::make_shared<GLTex>( obj_mat.specular_tex.c_str() );
+            std::shared_ptr<GLTex> specular_tex = TextureCache::GetTexture( obj_mat.specular_tex.c_str() );
 
             mat->specularTex = std::move(specular_tex);
         }
