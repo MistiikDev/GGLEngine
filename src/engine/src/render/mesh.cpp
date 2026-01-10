@@ -1,6 +1,4 @@
-#include <render/GLMesh.h>
-
-
+#include <render/OpenGL/GLMesh.h>
 
 GLMesh::GLMesh(GLShader* shader, GLMesh_Data& obj_data, GLMaterial_Data& mtl_data)
     : m_shader(shader)

@@ -1,0 +1,25 @@
+#ifndef MESH_COMPONENT_H
+#define MESH_COMPONENT_H
+
+#include <render/OpenGL/GLMesh.h> 
+#include <scene/components.h>
+#include <render/renderer.h>
+
+struct MESH : Component {
+/*
+    TODO : Make it later so that the MESH component chooses GLMesh / VulkanMesh... depending on render settings
+    Have an upper class "Mesh" that holds either a GLMesh / VulkanMesh, and use that upper class evertwhere else
+*/ 
+    public:
+        MESH( const char meshReference ); // Somehow load, independently from the file format, verticies and indicies from this
+
+        void Tick(unsigned int deltaTime) override {
+            // Find a way to do this efficiently m_mesh.Draw( GetCurrentCamera() );
+        }
+
+    private:
+        GLMesh m_mesh;
+
+};
+
+#endif
