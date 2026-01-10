@@ -25,35 +25,36 @@ void Camera::MatrixRender(GLShader& shader, const char* uniform) {
     glUniformMatrix4fv(camera_uniform, 1, GL_FALSE, glm::value_ptr(CameraMatrix));
 }
 
-void Camera::Input(GLFWwindow* window) {
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+void Camera::Input(G_window* window) {
+    GLFWwindow* m_glfw_window = window->GetGLFWWindow();
+    MouseState m_mouseState = window->GetMouseState();
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (glfwGetKey(m_glfw_window, GLFW_KEY_W) == GLFW_PRESS) {
         Position += CameraSpeed * LookVector;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (glfwGetKey(m_glfw_window, GLFW_KEY_S) == GLFW_PRESS) {
         Position += -CameraSpeed * LookVector;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+    if (glfwGetKey(m_glfw_window, GLFW_KEY_E) == GLFW_PRESS) {
         Position += CameraSpeed * UpVector;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+    if (glfwGetKey(m_glfw_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
         Position += -CameraSpeed * UpVector;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (glfwGetKey(m_glfw_window, GLFW_KEY_D) == GLFW_PRESS) {
         Position += CameraSpeed * glm::normalize(glm::cross(LookVector, UpVector)); // (LookVec x UpVec) return RightVec;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (glfwGetKey(m_glfw_window, GLFW_KEY_A) == GLFW_PRESS) {
         Position += -CameraSpeed * glm::normalize(glm::cross(LookVector, UpVector));
     }
 
     double mouseX, mouseY;
-    glfwGetCursorPos(window, &mouseX, &mouseY);
+    glfwGetCursorPos(m_glfw_window, &mouseX, &mouseY);
 
     float rotX = (float)(mouseX - WIDTH / 2) * (CameraSensitivity / 1000.0f);
     float rotY = (float)(mouseY - HEIGHT / 2) * (CameraSensitivity / 1000.0f);
@@ -63,7 +64,11 @@ void Camera::Input(GLFWwindow* window) {
 
     glm::mat4 RotationMatrix = yRotationMatrix * xRotationMatrix;  
 
-    LookVector = glm::vec3(RotationMatrix * glm::vec4(LookVector, 1.0f));
 
-    glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+    if (m_mouseState == MOUSE_FOCUS) {
+        // Act on camera orientation only when cursor is locked
+
+        LookVector = glm::vec3(RotationMatrix * glm::vec4(LookVector, 1.0f));
+        glfwSetCursorPos(m_glfw_window, (WIDTH / 2), (HEIGHT / 2));
+    }
 }

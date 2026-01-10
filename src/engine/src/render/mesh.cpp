@@ -1,27 +1,29 @@
-#include <render/mesh.h>
+#include <render/GLMesh.h>
 
-Mesh::Mesh(GLShader* shader, Mesh_Data& obj_data, Material_Data& mtl_data)
+
+
+GLMesh::GLMesh(GLShader* shader, GLMesh_Data& obj_data, GLMaterial_Data& mtl_data)
     : m_shader(shader)
 {
     // Get ownership of important data
-    mesh_data = obj_data;
-    material_data = mtl_data;
+    GLMesh_data = obj_data;
+    GLMaterial_data = mtl_data;
 
-    for (auto const& submesh : mesh_data.sub_meshes) {
-        Material* material = submesh.material;
+    for (auto const& subGLMesh : GLMesh_data.sub_GLMeshes) {
+        GLMaterial* GLMaterial = subGLMesh.GLMaterial;
 
         m_shader->Activate();
 
-        if (material == nullptr) {
-            material = DefaultAssets::debug_material;
+        if (GLMaterial == nullptr) {
+            GLMaterial = DefaultAssets::debug_GLMaterial;
         }
 
-        if (material->diffuseTex == nullptr) {
-            material->diffuseTex = DefaultAssets::debug_texture;
+        if (GLMaterial->diffuseTex == nullptr) {
+            GLMaterial->diffuseTex = DefaultAssets::white_texture;
         }
         
-        if (material->specularTex == nullptr) {
-            material->specularTex = DefaultAssets::debug_texture;
+        if (GLMaterial->specularTex == nullptr) {
+            GLMaterial->specularTex = DefaultAssets::white_texture;
         }
     }
 
@@ -29,8 +31,8 @@ Mesh::Mesh(GLShader* shader, Mesh_Data& obj_data, Material_Data& mtl_data)
     m_modelBuffer = GLBuf { };
     m_modelIndexBuffer = GLBuf { };
 
-    m_modelBuffer.BufferData(mesh_data.vertices);
-    m_modelIndexBuffer.BufferData(mesh_data.indicies);
+    m_modelBuffer.BufferData(GLMesh_data.vertices);
+    m_modelIndexBuffer.BufferData(GLMesh_data.indicies);
 
     m_modelVertexArray.Bind();
     m_modelBuffer.Bind();
@@ -52,45 +54,45 @@ Mesh::Mesh(GLShader* shader, Mesh_Data& obj_data, Material_Data& mtl_data)
 
     objectTransform = glm::translate(objectTransform, objectPosition);
 
-    cframe = CFrame( objectTransform );
+    transform = Transform( objectTransform );
 
     //
     m_shader->Activate();
-    m_shader->SetMatrix4f("vertexTransform", cframe.toMatrix());
+    m_shader->SetMatrix4f("vertexTransform", transform.toMatrix());
 }
 
-void Mesh::Draw(Camera& m_CurrentCamera) {
+void GLMesh::Draw(Camera& m_CurrentCamera) {
     //
     m_shader->Activate();
-    m_shader->SetMatrix4f("vertexTransform", cframe.toMatrix());
+    m_shader->SetMatrix4f("vertexTransform", transform.toMatrix());
     
     m_CurrentCamera.MatrixRender(*m_shader, "camera_matrix");
 
     m_modelVertexArray.Bind();
     m_modelIndexBuffer.Bind();
 
-    for (auto const& submesh : mesh_data.sub_meshes) {
-        const Material* material = submesh.material;
+    for (auto const& subGLMesh : GLMesh_data.sub_GLMeshes) {
+        const GLMaterial* GLMaterial = subGLMesh.GLMaterial;
 
         m_shader->Activate();
 
-        material->diffuseTex->Bind(0);
-        material->diffuseTex->Sample(*m_shader, 0, "diffuseMap");
+        GLMaterial->diffuseTex->Bind(0);
+        GLMaterial->diffuseTex->Sample(*m_shader, 0, "diffuseMap");
 
-        material->specularTex->Bind(1);
-        material->specularTex->Sample(*m_shader, 1, "specularMap");
+        GLMaterial->specularTex->Bind(1);
+        GLMaterial->specularTex->Sample(*m_shader, 1, "specularMap");
 
-        m_shader->SetFloat("material.shininess", material->specular_factor);
-        m_shader->SetVector3f("material.ambient", material->ambiantColor);
-        m_shader->SetVector3f("material.diffuse", material->diffuseColor);
-        m_shader->SetVector3f("material.specular", material->specularColor);
+        m_shader->SetFloat("GLMaterial.shininess", GLMaterial->specular_factor);
+        m_shader->SetVector3f("GLMaterial.ambient", GLMaterial->ambiantColor);
+        m_shader->SetVector3f("GLMaterial.diffuse", GLMaterial->diffuseColor);
+        m_shader->SetVector3f("GLMaterial.specular", GLMaterial->specularColor);
 
-        void* offset = (void*)(uintptr_t)(submesh.indexOffset * sizeof(uint32_t));
+        void* offset = (void*)(uintptr_t)(subGLMesh.indexOffset * sizeof(uint32_t));
 
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(submesh.indexCount), GL_UNSIGNED_INT, offset);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(subGLMesh.indexCount), GL_UNSIGNED_INT, offset);
 
-        material->diffuseTex->Unbind(0);
-        material->specularTex->Unbind(1);
+        GLMaterial->diffuseTex->Unbind(0);
+        GLMaterial->specularTex->Unbind(1);
     }
 
     m_modelVertexArray.Unbind();

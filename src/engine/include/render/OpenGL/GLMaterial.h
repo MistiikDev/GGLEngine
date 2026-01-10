@@ -1,5 +1,5 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#ifndef GLMaterial_H
+#define GLMaterial_H
 
 #include <memory>
 
@@ -8,9 +8,9 @@
 #include <global/globals.h>
 #include <global/maths/Vector3.h>
 
-struct Material {
+struct GLMaterial {
 
-    Material(  ) = default;
+    GLMaterial(  ) = default;
 
     float specular_factor = 32.0f;
 
@@ -22,17 +22,17 @@ struct Material {
     std::shared_ptr<GLTex> diffuseTex;
     std::shared_ptr<GLTex> specularTex;
 
-    Material& SetDiffuse( const Vector3& v )  { diffuseColor = v; return *this; }
-    Material& SetSpecular( const Vector3& v ) { specularColor = v; return *this; }
-    Material& SetAmbient( const Vector3& v )  { ambiantColor = v; return *this; }
-    Material& SetShininess( float s )         { specular_factor = s; return *this; }
+    GLMaterial& SetDiffuse( const Vector3& v )  { diffuseColor = v; return *this; }
+    GLMaterial& SetSpecular( const Vector3& v ) { specularColor = v; return *this; }
+    GLMaterial& SetAmbient( const Vector3& v )  { ambiantColor = v; return *this; }
+    GLMaterial& SetShininess( float s )         { specular_factor = s; return *this; }
 
-    Material& SetDiffuseTex(const std::string& path) {
+    GLMaterial& SetDiffuseTex(const std::string& path) {
         diffuseTex = TextureCache::GetTexture( path.c_str() );
         return *this;
     }
 
-    Material& SetSpecularTex(const std::string& path) {
+    GLMaterial& SetSpecularTex(const std::string& path) {
         specularTex = TextureCache::GetTexture( path.c_str() );
         return *this;
     }

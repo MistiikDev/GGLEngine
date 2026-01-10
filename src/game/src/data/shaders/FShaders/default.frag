@@ -10,7 +10,7 @@ uniform vec3 light_color;
 uniform vec3 light_position;
 uniform vec3 camera_position;
 
-struct Material {
+struct GLMaterial {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -20,7 +20,7 @@ struct Material {
 
 uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
-uniform Material material;
+uniform GLMaterial GLMaterial;
 
 void main( ) {
     float lightIntensity = 3.0;
@@ -30,19 +30,19 @@ void main( ) {
     vec3 lightDir = normalize(light_position - worldPosition);
 
     float diffuseFactor = 0.5; //max(dot(norm, lightDir), 0.0); // lightDir is not proprely transcribed 
-                                                                // tired will fucking fix fucking later 
-
+    // tired will fucking fix fucking later 
+    
     vec3 reflectDir = reflect(-lightDir, norm);
-    float specularFactor = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess * 10.0);
+    float specularFactor = pow(max(dot(viewDir, reflectDir), 0.0), GLMaterial.shininess * 10.0);
 
     vec3 diffuseTexRGB = texture(diffuseMap, textureCoordinates).rgb;
     vec3 specularTexRGB = texture(specularMap, textureCoordinates).rgb;
 
-    vec3 ambientComponent = material.ambient;
-    vec3 diffuseComponent = material.diffuse * diffuseFactor * diffuseTexRGB;
-    vec3 specularComponent = material.specular * specularFactor * specularTexRGB;
+    vec3 ambientComponent = GLMaterial.ambient;
+    vec3 diffuseComponent = GLMaterial.diffuse * diffuseFactor * diffuseTexRGB;
+    vec3 specularComponent = GLMaterial.specular * specularFactor * specularTexRGB;
 
-    vec3 result = (diffuseComponent) * lightIntensity;
+    vec3 result = (diffuseComponent + specularComponent) * lightIntensity * color;
 
     FragColor = vec4(result, 1.0);
 }

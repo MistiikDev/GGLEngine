@@ -4,7 +4,7 @@
 CXX = g++
 
 # Find all directories under 'src', 'include', and 'core'
-INC_FLAGS := -Isrc/engine/include -Ithird_party -Ithird_party/GLAD -Ithird_party/GLFW -Ithird_party/GLM -Ithird_party/KHR -Ithird_party/stb
+INC_FLAGS := -Isrc/engine/include -Ithird_party -Ithird_party/imgui -Ithird_party/GLAD -Ithird_party/GLFW -Ithird_party/GLM -Ithird_party/KHR -Ithird_party/stb
 
 # 3. FLAGS
 # -MMD -MP creates .d files to track header dependencies
@@ -17,6 +17,8 @@ LDFLAGS = -Llib -lmingw32 -lglfw3 -lopengl32 -lgdi32
 # Source files
 SRC := $(shell find src -type f \( -name "*.cpp" -o -name "*.c" \))
 SRC += $(shell find core -type f \( -name "*.cpp" -o -name "*.c" \))
+SRC += $(shell find third_party -type f \( -name "*.cpp" -o -name "*.c" \))
+
 OBJ := $(SRC:.cpp=.o)
 OBJ := $(OBJ:.c=.o)
 

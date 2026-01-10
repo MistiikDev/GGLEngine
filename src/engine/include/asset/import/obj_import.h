@@ -17,9 +17,10 @@
 #include <bits/stdc++.h>
 
 #include <global/globals.h>
-#include <render/mesh.h>
+
 #include <render/vertex.h>
 #include <render/texture_cache.h>
+#include <render/OpenGL/GLMesh.h>
 
 struct Face {
 
@@ -29,9 +30,9 @@ struct Face {
 
 } ;
 
-struct OBJ_Material {
+struct OBJ_GLMaterial {
 
-    OBJ_Material() {
+    OBJ_GLMaterial() {
         name = "";
         
         specular_factor = 1.0f;
@@ -59,11 +60,11 @@ struct OBJ_Material {
 
 class OBJImport {
     public:
-        static void _loadOBJ( const char* fileDirectory, Mesh_Data* obj_data, Material_Data* mtl_data );
+        static void _loadOBJ( const char* fileDirectory, GLMesh_Data* obj_data, GLMaterial_Data* mtl_data );
 
     private:
-        static void _readOBJ( const char* objName, Mesh_Data* obj_data, Material_Data* materials );
-        static void _readMTL( const char* mtlName, Material_Data* materials );
+        static void _readOBJ( const char* objName, GLMesh_Data* obj_data, GLMaterial_Data* GLMaterials );
+        static void _readMTL( const char* mtlName, GLMaterial_Data* GLMaterials );
 };
 
 #endif

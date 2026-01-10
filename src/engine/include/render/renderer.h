@@ -16,8 +16,8 @@
 
 #include <core/camera.h>
 
-#include <render/mesh.h>
-#include <render/material.h>
+#include <render/OpenGL/GLMesh.h>
+#include <render/OpenGL/GLMaterial.h>
 
 #include <scene/lighting/point_light.h>
 #include <global/globals.h>
@@ -40,8 +40,8 @@ class G_renderer {
         G_window* m_window;
         GLShader* m_shader;
         
-        Mesh* m_mesh;
-        Mesh* m_mesh2;
+        GLMesh* m_GLMesh;
+        GLMesh* m_GLMesh_second;
 };
 
 #endif

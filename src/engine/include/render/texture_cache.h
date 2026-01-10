@@ -21,6 +21,8 @@ class TextureCache {
         static void Init() {
             m_texture_cache = std::unordered_map<std::string, std::shared_ptr<GLTex>>();
             m_texture_cache.reserve(TEXTURE_BUFF_SIZE);
+
+            Engine::log::print("[ENGINE] : ", "Texture Cache Loaded (", TEXTURE_BUFF_SIZE, "entities )" );
         };
 
         static std::shared_ptr<GLTex> GetTexture( const char* fileName ) {

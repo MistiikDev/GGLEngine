@@ -1,30 +1,13 @@
 #include <core/window.h>
 #include <render/renderer.h>
 
-void procces_input( GLFWwindow *window ) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-
-    } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        
-    }
-}
-
-static void glfw_error_callback( int error, const char* description ) {
-    Engine::log::print("[GLFW ERROR] : ", error, description);
-}
-
 G_window::G_window( const char* WindowTitle, unsigned int ScreenWidth, unsigned int ScreenHeight ) {
     if (!glfwInit()) {
         Engine::log::print("[GLFW ERROR] : ", "FAILED INIT");
         return;
     }
 
-    glfwSetErrorCallback(glfw_error_callback);
+    glfwSetErrorCallback(Engine::glfw::glfw_error_callback);
 
     m_glfwWindow = glfwCreateWindow(ScreenWidth, ScreenHeight, WindowTitle, NULL, NULL);
     if (!m_glfwWindow) {
@@ -48,9 +31,24 @@ G_window::G_window( const char* WindowTitle, unsigned int ScreenWidth, unsigned 
     Engine::log::print("[OPENGL] : ", glGetString(GL_VERSION));
 
     gladLoadGL();
+
+    // --- IMGUI INIT START ---
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
+    // Enable Keyboard Controls
+
+    ImGui::StyleColorsDark(); 
+
+    ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    // --- IMGUI INIT END ---
+
     glViewport(0, 0, ScreenWidth, ScreenHeight);
     glEnable(GL_DEPTH_TEST);
 
+    m_mouseState = MOUSE_FOCUS;
     m_windowRenderer = new G_renderer(this, ScreenWidth, ScreenHeight);
 }
 
@@ -58,9 +56,35 @@ GLFWwindow* G_window::GetGLFWWindow() {
     return m_glfwWindow;
 }
 
+void G_window::Input() {
+    ImGuiIO io = ImGui::GetIO();
+
+    if (glfwGetKey(m_glfwWindow, GLFW_KEY_F) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    } else if (glfwGetKey(m_glfwWindow, GLFW_KEY_F) == GLFW_RELEASE) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    if (glfwGetMouseButton(m_glfwWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if (!io.WantCaptureMouse) {
+            m_mouseState = MOUSE_FOCUS;
+        }
+    } else if (glfwGetKey(m_glfwWindow, GLFW_KEY_ESCAPE)) {
+        m_mouseState = MOUSE_FREE;
+    }
+
+    if (m_mouseState == MOUSE_FOCUS) {
+        glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    } else {
+        glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
 void G_window::Render() {
     while (!glfwWindowShouldClose(m_glfwWindow)) {
-        procces_input(m_glfwWindow);
+        this->Input();
+
         m_windowRenderer->Render();
     }
 
@@ -68,6 +92,10 @@ void G_window::Render() {
 }
 
 void G_window::Destroy() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     m_windowRenderer->Destroy();
 
     glfwDestroyWindow(m_glfwWindow);

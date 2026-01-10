@@ -1,5 +1,5 @@
 # Blender MTL File: 'Cop.blend'
-# Material Count: 8
+# GLMaterial Count: 8
 
 newmtl 01___Default
 Ns 96.078431
@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd src/game/data/models/textures/Yoshi_body.png
+map_Kd src/game/src/data/models/textures/Yoshi_body.png
 
 
 newmtl 02___Default
@@ -23,4 +23,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd src/game/data/models/textures/Yoshi_eye.png
+map_Kd src/game/src/data/models/textures/Yoshi_eye.png

@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <core/window.h>
 #include <global/maths/Vector3.h>
 #include <render/OpenGL/GLShader.h>
 
@@ -29,7 +30,7 @@ class Camera {
         void MatrixRender( GLShader& shader, const char* uniform );
         void ComputeMatrix( float nearClip, float farClip, float FieldOfView );
 
-        void Input( GLFWwindow* window );
+        void Input( G_window* window );
 };
 
 #endif

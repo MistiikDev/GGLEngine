@@ -73,8 +73,10 @@ namespace Engine {
         }
     }
 
-    namespace crypto {
-        
+    namespace glfw {
+        inline void glfw_error_callback( int error, const char* description ) {
+            Engine::log::print("[GLFW ERROR] : ", error, description);
+        }
     }
 }
 

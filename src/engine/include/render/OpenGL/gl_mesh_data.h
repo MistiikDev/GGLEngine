@@ -1,5 +1,5 @@
-#ifndef MESH_DATA_H
-#define MESH_DATA_H
+#ifndef GLMesh_DATA_H
+#define GLMesh_DATA_H
 
 #include <iostream>
 #include <memory>
@@ -7,20 +7,20 @@
 
 #include <bits/stdc++.h>
 #include <render/vertex.h>
-#include <render/material.h>
+#include <render/OpenGL/GLMaterial.h>
 
-struct SubMesh_Data {
+struct SubGLMesh_Data {
     uint32_t indexOffset;
     uint32_t indexCount;
 
-    Material* material;
+    GLMaterial* GLMaterial;
 };
 
-struct Mesh_Data {
+struct GLMesh_Data {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indicies;
 
-    std::vector<SubMesh_Data> sub_meshes;
+    std::vector<SubGLMesh_Data> sub_GLMeshes;
 };
 
-#endif // MESH_DATA_H
+#endif // GLMesh_DATA_H

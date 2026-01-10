@@ -4,6 +4,21 @@
 
 #include <render/OpenGL/GLShader.h>
 
+std::string get_shader_code(const char* shaderFile) {
+    std::ifstream file(shaderFile);
+
+    if (!file) {
+        Engine::log::print("[SHADER_ERR]: ", "Failed to open shader file.");
+
+        throw std::runtime_error("Failed to open shader file.");
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf(); 
+
+    return buffer.str();
+}
+
 GLShader::GLShader( const char* vertexShader, const char* fragShader ) {
     std::string vertexCode = get_shader_code(vertexShader);
     std::string fragCode = get_shader_code(fragShader);
@@ -110,20 +125,6 @@ void GLShader::Destroy() {
     
     glDeleteProgram(this->ID);
 }
-
-std::string get_shader_code(const char* shaderFile) {
-    std::ifstream file(shaderFile);
-
-    if (!file) {
-        throw std::runtime_error("[SHADER_ERR]: Failed to open shader file.");
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf(); 
-
-    return buffer.str();
-}
-
 
 void GLShader::CompilationErrors( unsigned int ShaderID, const char* shaderCompilationType ) {
     GLint hasCompiled;
