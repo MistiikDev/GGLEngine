@@ -2,6 +2,10 @@
 #define ENTITY_H
 
 
+#include <atomic>
+
+static std::atomic<uint64_t> counter{0};
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -19,21 +23,10 @@ struct Entity {
         void AddComponent(Args&&... args);
 
         template <typename T>
-        T* GetComponent() {
-            auto type = std::type_index(typeid(T));
-            auto iterator = components.find(type);
-
-            if (iterator == components.end()) {
-                return nullptr;
-            }
-
-            return static_cast<T*>(iterator->second.get());
-        }
+        T* GetComponent();
 
         template <typename T>
-        bool HasComponent() const {
-            return components.count(std::type_index(typeid(T))) > 0;
-        }
+        bool HasComponent() const;
 
     private:
         const std::string m_id;

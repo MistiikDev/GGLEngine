@@ -7,16 +7,20 @@
 
 #include <scene/entities/entity.h>
 
+#include <scene/components/transform.h>
+#include <scene/components/rigidbody.h>
+#include <scene/components/mesh.h>
+
 #define SIZE 1024
 
 class G_scene {
     public:
         std::string SceneName;
 
-        const void Load() const;
-        const void Unload() const;
+        void Load() const;
+        void Unload() const;
 
-        const void Render();
+        void Render();
     private:
         std::vector<Entity> m_entities();
 };

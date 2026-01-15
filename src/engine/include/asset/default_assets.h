@@ -10,23 +10,24 @@
 #include <memory>
 
 #include <render/texture_cache.h>
-#include <render/OpenGL/GLMaterial.h>
+#include <render/material.h>
 #include <render/OpenGL/GLShader.h>
 #include <render/OpenGL/GLTex.h>
 
 struct DefaultAssets {
-    static inline GLMaterial* debug_GLMaterial;
-    static inline GLMaterial* white_GLMaterial;
+    // Make Graphics Engine independent later
+    static inline Material* debug_GLMaterial;
+    static inline Material* white_GLMaterial;
 
-    static inline std::shared_ptr<GLTex> debug_texture;
-    static inline std::shared_ptr<GLTex> white_texture;
+    static inline std::shared_ptr<Texture> debug_texture;
+    static inline std::shared_ptr<Texture> white_texture;
 
     static inline GLShader* default_shader;
 
     static void Init() {
-        default_shader = new GLShader { DEFAULT_VERT_SHADER, DEFAULT_FRAG_SHADER };
+        default_shader = new Shader { DEFAULT_VERT_SHADER, DEFAULT_FRAG_SHADER };
         
-        debug_GLMaterial = new GLMaterial();
+        debug_GLMaterial = new Material();
         debug_GLMaterial->SetDiffuseTex( DEBUG_TEXTURE_PATH );
         debug_GLMaterial->SetSpecularTex( DEBUG_TEXTURE_PATH );
 

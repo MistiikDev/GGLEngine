@@ -7,13 +7,13 @@
 
 #include <bits/stdc++.h>
 #include <render/vertex.h>
-#include <render/OpenGL/GLMaterial.h>
+#include <render/material.h>
 
 struct SubGLMesh_Data {
     uint32_t indexOffset;
     uint32_t indexCount;
 
-    GLMaterial* GLMaterial;
+    Material* GLMaterial;
 };
 
 struct GLMesh_Data {

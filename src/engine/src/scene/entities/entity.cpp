@@ -1,7 +1,8 @@
 #include <scene/entities/entity.h>
 
-Entity::Entity() {
-
+Entity::Entity() : m_id(std::to_string(++counter))
+{
+    
 }
 
 /*

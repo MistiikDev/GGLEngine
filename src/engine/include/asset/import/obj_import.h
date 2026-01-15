@@ -1,7 +1,6 @@
 #ifndef OBJIMPORTER_H
 #define OBJIMPORTER_H
 
-
 #define OBJ_EXTENSION ".obj"
 #define MTL_EXTENSION ".mtl"
 

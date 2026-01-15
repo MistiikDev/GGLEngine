@@ -25,7 +25,7 @@ void Camera::MatrixRender(GLShader& shader, const char* uniform) {
     glUniformMatrix4fv(camera_uniform, 1, GL_FALSE, glm::value_ptr(CameraMatrix));
 }
 
-void Camera::Input(G_window* window) {
+void Camera::Input(EditorViewport* window) {
     GLFWwindow* m_glfw_window = window->GetGLFWWindow();
     MouseState m_mouseState = window->GetMouseState();
 

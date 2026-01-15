@@ -1,7 +1,7 @@
-#include <core/window.h>
-#include <render/renderer.h>
+#include <core/scene_window.h>
+#include <render/scene_renderer.h>
 
-G_window::G_window( const char* WindowTitle, unsigned int ScreenWidth, unsigned int ScreenHeight ) {
+EditorViewport::EditorViewport( const char* WindowTitle, unsigned int ScreenWidth, unsigned int ScreenHeight ) {
     if (!glfwInit()) {
         Engine::log::print("[GLFW ERROR] : ", "FAILED INIT");
         return;
@@ -49,14 +49,14 @@ G_window::G_window( const char* WindowTitle, unsigned int ScreenWidth, unsigned 
     glEnable(GL_DEPTH_TEST);
 
     m_mouseState = MOUSE_FOCUS;
-    m_windowRenderer = new G_renderer(this, ScreenWidth, ScreenHeight);
+    m_viewportRenderer = std::make_unique<SceneRenderer>(this, ScreenWidth, ScreenHeight);
 }
 
-GLFWwindow* G_window::GetGLFWWindow() {
+GLFWwindow* EditorViewport::GetGLFWWindow() {
     return m_glfwWindow;
 }
 
-void G_window::Input() {
+void EditorViewport::Input() {
     ImGuiIO io = ImGui::GetIO();
 
     if (glfwGetKey(m_glfwWindow, GLFW_KEY_F) == GLFW_PRESS) {
@@ -81,22 +81,22 @@ void G_window::Input() {
     }
 }
 
-void G_window::Render() {
+void EditorViewport::Render() {
     while (!glfwWindowShouldClose(m_glfwWindow)) {
         this->Input();
 
-        m_windowRenderer->Render();
+        m_viewportRenderer->Render();
     }
 
     Destroy();
 }
 
-void G_window::Destroy() {
+void EditorViewport::Destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    m_windowRenderer->Destroy();
+    m_viewportRenderer->Destroy();
 
     glfwDestroyWindow(m_glfwWindow);
     glfwTerminate();

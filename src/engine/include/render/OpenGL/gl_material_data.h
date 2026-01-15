@@ -6,10 +6,10 @@
 #include <unordered_map>
 
 #include <render/vertex.h>
-#include <render/OpenGL/GLMaterial.h>
+#include <render/material.h>
 
 struct GLMaterial_Data {
-    std::unordered_map<std::string, GLMaterial*> name_to_GLMaterial;
+    std::unordered_map<std::string, Material*> name_to_GLMaterial;
 };
 
 #endif // GLMaterial_DATA_H

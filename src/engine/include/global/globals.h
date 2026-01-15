@@ -1,6 +1,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define FILE_EXTENSION '.'
+
 #pragma once
 
 #include <iostream>
@@ -8,6 +10,7 @@
 #include <vector>
 
 #include <cstdio>
+#include <filesystem>
 
 #include <random>
 #include <sstream>
@@ -16,6 +19,7 @@
 
 typedef uint32_t ui32;
 typedef uint16_t ui16;
+
 
 namespace Engine {
     namespace file {
@@ -57,7 +61,13 @@ namespace Engine {
 
             output.push_back(buf);
         }
+
+        inline std::string getFileExtension( const std::string& in ) {
+            return std::filesystem::path(in).extension().string();
+        }
     }
+
+    
 
 
     namespace log {

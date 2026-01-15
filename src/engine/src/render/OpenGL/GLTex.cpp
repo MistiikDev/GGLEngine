@@ -1,5 +1,4 @@
 #include <render/OpenGL/GLTex.h>
-#include <render/texture_cache.h>
 
 GLTex::GLTex( const char* texturePath ) {
     std::cout << "[GLTEX] : " << std::string(texturePath) << std::endl;

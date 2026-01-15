@@ -1,9 +1,15 @@
 #include <iostream>
-#include <core/window.h>
+#include <api/bootstrap/bootstrap.h>
+#include <core/scene_window.h>
 
 int main() {
-    G_window gameWindow {"GGLEngine", 1280, 720};
     
-    gameWindow.Render();
+    if ( Bootstrap::Init() ) {
+        EditorViewport viewport {"GGLENGINE - VIEWPORT", 1280, 720};
+    }
+
+    EditorViewport viewport {"GGLENGINE - VIEWPORT", 1280, 720};
+    viewport.Render();
+    
     return 0;
 }

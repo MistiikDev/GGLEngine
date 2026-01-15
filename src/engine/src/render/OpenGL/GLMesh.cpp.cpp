@@ -1,16 +1,13 @@
 #include <render/OpenGL/GLMesh.h>
 
-GLMesh::GLMesh(GLShader* shader, GLMesh_Data& obj_data, GLMaterial_Data& mtl_data)
-    : m_shader(shader)
+GLMesh::GLMesh( GLMesh_Data& obj_data, GLMaterial_Data& mtl_data )
 {
     // Get ownership of important data
     GLMesh_data = obj_data;
     GLMaterial_data = mtl_data;
 
     for (auto const& subGLMesh : GLMesh_data.sub_GLMeshes) {
-        GLMaterial* GLMaterial = subGLMesh.GLMaterial;
-
-        m_shader->Activate();
+        Material* GLMaterial = subGLMesh.GLMaterial;
 
         if (GLMaterial == nullptr) {
             GLMaterial = DefaultAssets::debug_GLMaterial;
@@ -53,44 +50,43 @@ GLMesh::GLMesh(GLShader* shader, GLMesh_Data& obj_data, GLMaterial_Data& mtl_dat
     objectTransform = glm::translate(objectTransform, objectPosition);
 
     transform = Transform( objectTransform );
-
-    //
-    m_shader->Activate();
-    m_shader->SetMatrix4f("vertexTransform", transform.toMatrix());
 }
 
-void GLMesh::Draw(Camera& m_CurrentCamera) {
+void GLMesh::Draw( RenderContext& ctx ) {
     //
-    m_shader->Activate();
-    m_shader->SetMatrix4f("vertexTransform", transform.toMatrix());
+    ctx.m_shader->Activate();
+    ctx.m_shader->SetMatrix4f("vertexTransform", transform.toMatrix());
     
-    m_CurrentCamera.MatrixRender(*m_shader, "camera_matrix");
+    ctx.m_currentCamera->MatrixRender(*ctx.m_shader, "camera_matrix");
 
     m_modelVertexArray.Bind();
     m_modelIndexBuffer.Bind();
 
     for (auto const& subGLMesh : GLMesh_data.sub_GLMeshes) {
-        const GLMaterial* GLMaterial = subGLMesh.GLMaterial;
+        const Material* GLMaterial = subGLMesh.GLMaterial;
 
-        m_shader->Activate();
+        ctx.m_shader->Activate();
 
-        GLMaterial->diffuseTex->Bind(0);
-        GLMaterial->diffuseTex->Sample(*m_shader, 0, "diffuseMap");
+        GLMaterial->diffuseTex->Render( ctx );
+        GLMaterial->specularTex->Render( ctx );
+        
+        //GLMaterial->diffuseTex->Bind(0);
+        //GLMaterial->diffuseTex->Sample(*m_shader, 0, "diffuseMap");
 
-        GLMaterial->specularTex->Bind(1);
-        GLMaterial->specularTex->Sample(*m_shader, 1, "specularMap");
+        //GLMaterial->specularTex->Bind(1);
+        //GLMaterial->specularTex->Sample(*m_shader, 1, "specularMap");
 
-        m_shader->SetFloat("GLMaterial.shininess", GLMaterial->specular_factor);
-        m_shader->SetVector3f("GLMaterial.ambient", GLMaterial->ambiantColor);
-        m_shader->SetVector3f("GLMaterial.diffuse", GLMaterial->diffuseColor);
-        m_shader->SetVector3f("GLMaterial.specular", GLMaterial->specularColor);
+        ctx.m_shader->SetFloat("GLMaterial.shininess", GLMaterial->specular_factor);
+        ctx.m_shader->SetVector3f("GLMaterial.ambient", GLMaterial->ambiantColor);
+        ctx.m_shader->SetVector3f("GLMaterial.diffuse", GLMaterial->diffuseColor);
+        ctx.m_shader->SetVector3f("GLMaterial.specular", GLMaterial->specularColor);
 
         void* offset = (void*)(uintptr_t)(subGLMesh.indexOffset * sizeof(uint32_t));
 
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(subGLMesh.indexCount), GL_UNSIGNED_INT, offset);
 
-        GLMaterial->diffuseTex->Unbind(0);
-        GLMaterial->specularTex->Unbind(1);
+        GLMaterial->diffuseTex->Unbind( );
+        GLMaterial->specularTex->Unbind( );
     }
 
     m_modelVertexArray.Unbind();
